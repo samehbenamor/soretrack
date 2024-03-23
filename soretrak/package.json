@@ -20,7 +20,8 @@
     "react-native": "0.73.6",
     "react-native-date-picker": "^4.4.2",
     "react-native-dropdown-select-list": "^2.0.5",
-    "react-navigation": "^5.0.0"
+    "react-navigation": "^5.0.0",
+    "@react-native-community/datetimepicker": "7.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

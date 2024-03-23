@@ -5,13 +5,23 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Colors from './assets/colors'; // Import Colors.js
 import trajet from './views/trajet'; // Import 'trajet.js
 import ListTrajet from './views/listtrajet';
+import Selectionne from './views/selectionne';
+import Login from './views/login'; // Import 'login.js'
+import Register from './views/register'; // Import 'register.js'
+import Ticket from './views/ticket'; // Import 'ticket.js'
+import AdminChoice from './views/adminchoice';
 export default function App() {
   const Stack = createStackNavigator();
   return (
     <NavigationContainer  >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="AdminChoice" component={AdminChoice} />
         <Stack.Screen name="VotreTrajet" component={trajet} />
         <Stack.Screen name="List" component={ListTrajet} />
+        <Stack.Screen name="Selectionne" component={Selectionne} /> 
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="Ticket" component={Ticket} />
       </Stack.Navigator>
     </NavigationContainer>
   );

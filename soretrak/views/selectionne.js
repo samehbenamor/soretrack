@@ -92,7 +92,7 @@ const Selectionne = () => {
   const handleReservation = () => {
     // Handle reservation logic
     // For now, just open the modal
-    // setModalVisible(true);
+     //setModalVisible(true);
     navigation.navigate('Ticket');
   };
 

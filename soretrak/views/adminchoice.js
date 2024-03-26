@@ -1,23 +1,40 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import Colors from "../assets/colors"; // Assuming Colors.js defines color styles
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
+import { useNavigation } from '@react-navigation/native';
 
 const AdminChoice = () => {
     const fontsLoaded = useCustomFonts(); // Load custom fonts
-
+    const navigation = useNavigation();
     if (!fontsLoaded) {
         return <Text>Loading fonts...</Text>;
       }
+
+      const handleGestionLignePress = () => {
+        navigation.navigate('ManageTrajets');
+    };
+    const handleGestionClientPress = () => {
+      navigation.navigate('ManageClients');
+  };
+
+  const goBack = () => {
+    navigation.goBack();
+  };
+
+
   return (
     <View style={styles.container}>
       {/* First Button */}
-      <TouchableOpacity style={[styles.button, styles.firstButton]}>
+      <TouchableOpacity style={[styles.button, styles.firstButton]} onPress={handleGestionLignePress}>
         <Text style={[styles.buttonText, styles.firstButtonText]}>Gérer ligne</Text>
       </TouchableOpacity>
       {/* Second Button */}
-      <TouchableOpacity style={[styles.button, styles.secondButton]}>
+      <TouchableOpacity style={[styles.button, styles.secondButton]}  onPress={handleGestionClientPress}>
         <Text style={[styles.buttonText, styles.secondButtonText]}>Gérer données des clients</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={goBack} style={styles.backButton}>
+        <Image source={require("../assets/backarrow.png")} style={styles.backArrow} />
       </TouchableOpacity>
     </View>
   );
@@ -30,12 +47,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    width: "80%",
-    aspectRatio: 2, // Adjust aspect ratio as needed
+    flex: 1,
+    width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 10,
-    marginBottom: 20,
   },
   firstButton: {
     backgroundColor: Colors.Blue,
@@ -43,18 +58,25 @@ const styles = StyleSheet.create({
   secondButton: {
     backgroundColor: Colors.Yellow,
   },
+  backButton: {
+    position: "absolute",
+    bottom: 30,
+    alignSelf: "center",
+  },
   buttonText: {
     fontFamily: "Inter", // Change font family as needed
-    fontSize: 20, // Adjust font size as needed
+    fontSize: 24, // Adjust font size as needed
     textAlign: "center",
   },
   firstButtonText: {
     color: Colors.Yellow,
-    fontFamily: "Sed", // Assuming "Sed" is your custom font
+    fontFamily: "Itim", // Assuming "Sed" is your custom font
+    fontSize: 60, // Adjust font size as needed
   },
   secondButtonText: {
     color: Colors.Blue,
-    fontFamily: "Sed", // Assuming "Sed" is your custom font
+    fontFamily: "Itim", // Assuming "Sed" is your custom font
+    fontSize: 60, // Adjust font size as needed
   },
 });
 

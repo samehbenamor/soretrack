@@ -21,12 +21,13 @@ export default function App() {
   return (
     <NavigationContainer  >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="VotreTrajet" component={trajet} />
       <Stack.Screen name="AdminChoice" component={AdminChoice} />
         <Stack.Screen name="ManageTrajets" component={ManageTrajets} />
         <Stack.Screen name="AjouterLigne" component={AjouterLigne} /> 
         <Stack.Screen name="ModifierLigne" component={ModifierLigne} /> 
         <Stack.Screen name="ManageClients" component={ManageClients} /> 
-        <Stack.Screen name="VotreTrajet" component={trajet} />
+        
         <Stack.Screen name="List" component={ListTrajet} />
         <Stack.Screen name="Selectionne" component={Selectionne} /> 
         <Stack.Screen name="Login" component={Login} />

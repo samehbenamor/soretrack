@@ -9,10 +9,13 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.23.1",
+    "@react-native-community/datetimepicker": "7.6.1",
     "@react-native-picker/picker": "2.6.1",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
     "@react-navigation/stack": "^6.3.29",
+    "axios": "^1.6.8",
     "expo": "~50.0.14",
     "expo-font": "~11.10.3",
     "expo-status-bar": "~1.11.1",
@@ -20,8 +23,7 @@
     "react-native": "0.73.6",
     "react-native-date-picker": "^4.4.2",
     "react-native-dropdown-select-list": "^2.0.5",
-    "react-navigation": "^5.0.0",
-    "@react-native-community/datetimepicker": "7.6.1"
+    "react-navigation": "^5.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native"; 
 import { SelectList } from 'react-native-dropdown-select-list'
 import ListTrajet from './listtrajet';
 import Colors from "../assets/colors"; // Assuming Colors.js defines color styles
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
 import { useNavigation } from '@react-navigation/native';
-
+import LigneService from "../viewModels/generalfile.js";
 const Trajet = () => {
   const fontsLoaded = useCustomFonts(); // Load custom fonts
     
@@ -16,12 +16,30 @@ const Trajet = () => {
     setSelectedLineType(value);
   };
 
+
+  const [selectedLigne, setSelectedLigne] = useState(""); // State for selected ligne
+  const [lignes, setLignes] = useState([]);
   const [selected, setSelected] = useState("");
+  const [stationFrom, setStationFrom] = useState(""); // State for station from
+  const [stationTo, setStationTo] = useState(""); // State for station to
+  const [disableStations, setDisableStations] = useState(true); // State to enable/disable station select lists
+
   
-  const data = [
-      {key:'1', value:'Kairouan - Msaken - Sousse'},
-      {key:'2', value:'Kairouan - Mestir - Nabeul'},
-  ]
+
+  useEffect(() => {
+    // Fetch lignes when component mounts
+    const fetchLignes = async () => {
+      try {
+        const viewModel = new LigneService();
+        const data = await viewModel.getLignes();
+        setLignes(data); // Set the fetched lignes to state
+      } catch (error) {
+        console.error('Error fetching lignes:', error);
+        // Handle error
+      }
+    };
+    fetchLignes();
+  }, []);
 
   const data2 = [
     {key:'1', value:'Kairouan'},
@@ -32,7 +50,13 @@ const data3 = [
     {key:'1', value:'Sousse'},
     {key:'2', value:'Kairouan'},
 ]
-
+const handleLigneChange = (value) => {
+  setSelected(value);
+  const [station1, station2, station3] = value.split(' - '); // Split selected ligne by ' - '
+  setStationFrom(station1);
+  setStationTo(station3); // Set stationFrom to the first element of the split array
+  setDisableStations(false); // Enable station select lists
+};
   if (!fontsLoaded) {
     return <Text>Loading fonts...</Text>;
   }
@@ -63,32 +87,46 @@ const data3 = [
       <Image source={require("../assets/direction.png")} style={styles.directionImage} />
       <Text style={styles.thirdSubTitle}>Choisir les stations</Text>
       <View style={styles.selectContainer}>
-      <SelectList 
-        setSelected={(val) => setSelected(val)} 
-        data={data} 
-        save="value"
-        boxStyles={{backgroundColor:'white'}}
-        dropdownItemStyles={{backgroundColor:'white'}}
-    />
+      <SelectList
+          setSelected={handleLigneChange}
+          placeholder="Selectionner votre ligne"
+          searchPlaceholder="Rechercher une ligne"
+          data={lignes.map(ligne => ({ key: ligne._id, value: ligne.ligne }))} // Map lignes to SelectList data format
+          save="value"
+          boxStyles={{ backgroundColor: 'white' }}
+          dropdownItemStyles={{ backgroundColor: 'white' }}
+        />
      </View>
      <Image source={require("../assets/fromto.png")} style={styles.fromToImage} />
      <View style={styles.selectContainerThree}>
-     <SelectList 
-        setSelected={(val) => setSelected(val)} 
-        data={data2} 
-        save="value"
-        boxStyles={{backgroundColor:'white'}}
-        dropdownItemStyles={{backgroundColor:'white'}}
-    />
+     <SelectList
+    setSelected={(val) => setSelected(val)}
+    data={[
+      { key: '1', value: selected === stationFrom ? stationTo : stationFrom } // Show the remaining station based on the selected value
+    ]}
+    save="value"
+    placeholder="Station Retour"
+    searchPlaceholder="Rechercher une station"
+    boxStyles={{ backgroundColor: 'white' }}
+    dropdownItemStyles={{ backgroundColor: 'white' }}
+    disabled={disableStations || !stationFrom} // Disable until a ligne is selected or stationFrom is set
+  />
     </View>
     <View style={styles.selectContainerTwo}>
-    <SelectList 
-        setSelected={(val) => setSelected(val)} 
-        data={data3} 
-        save="value"
-        boxStyles={{backgroundColor:'white'}}
-        dropdownItemStyles={{backgroundColor:'white'}}
-    />
+    <SelectList
+    setSelected={(val) => setSelected(val)}
+    data={[
+      { key: '1', value: stationFrom }, // Show stationFrom
+      { key: '2', value: stationTo },   // Show stationTo
+    ]}
+    save="value"
+    searchPlaceholder="Rechercher une station"
+    placeholder="Station depart"
+    boxStyles={{ backgroundColor: 'white' }}
+    dropdownItemStyles={{ backgroundColor: 'white' }}
+    dropdownStyles={{ backgroundColor: 'white' }}
+    disabled={disableStations || !stationFrom} // Disable until a ligne is selected or stationFrom is set
+  />
      </View>
      <View style={styles.buttonContainer}>
   {/* Button 1 */}
@@ -205,7 +243,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderRadius: 5,
     paddingHorizontal: 10,
-    
+    zIndex: 6,
   },
   thirdSubTitle: {
     fontSize: 20,
@@ -228,7 +266,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderRadius: 5,
     paddingHorizontal: 10,
-    
+    zIndex: 5,
+
   },   
   selectContainerThree: {
     width: 300,
@@ -237,6 +276,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderRadius: 5,
     paddingHorizontal: 10,
+    zIndex: 4,
   },
   buttonContainer: {
     width: '100%',

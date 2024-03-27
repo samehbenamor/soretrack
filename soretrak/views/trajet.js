@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native"; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { SelectList } from 'react-native-dropdown-select-list'
 import ListTrajet from './listtrajet';
 import Colors from "../assets/colors"; // Assuming Colors.js defines color styles
@@ -24,7 +26,9 @@ const Trajet = () => {
   const [stationTo, setStationTo] = useState(""); // State for station to
   const [disableStations, setDisableStations] = useState(true); // State to enable/disable station select lists
 
-  
+  const [stationFromLigne, setStationFromLigne] = useState(""); // State for station from
+  const [stationToLigne, setStationToLigne] = useState(""); // State for station from
+
 
   useEffect(() => {
     // Fetch lignes when component mounts
@@ -41,20 +45,22 @@ const Trajet = () => {
     fetchLignes();
   }, []);
 
-  const data2 = [
-    {key:'1', value:'Kairouan'},
-    {key:'2', value:'Sousse'},
-]
-
-const data3 = [
-    {key:'1', value:'Sousse'},
-    {key:'2', value:'Kairouan'},
-]
+const handleRecherche = async () => {
+  // Save selected data in AsyncStorage
+  try {
+    await AsyncStorage.setItem('selectedData', JSON.stringify({ selectedLigne, stationFromLigne, stationToLigne }));
+    // Navigate to the desired screen
+    navigation.navigate('List');
+  } catch (error) {
+    console.error('Error saving data to AsyncStorage:', error);
+    // Handle error
+  }
+};
 const handleLigneChange = (value) => {
   setSelected(value);
-  const [station1, station2, station3] = value.split(' - '); // Split selected ligne by ' - '
-  setStationFrom(station1);
-  setStationTo(station3); // Set stationFrom to the first element of the split array
+  const stations = value.split(' - '); // Split selected ligne by ' - '
+  setStationFrom(stations[0]);
+  setStationTo(stations.length === 3 ? stations[2] : stations[1]); // Set stationTo based on the length of the split array
   setDisableStations(false); // Enable station select lists
 };
   if (!fontsLoaded) {
@@ -88,10 +94,13 @@ const handleLigneChange = (value) => {
       <Text style={styles.thirdSubTitle}>Choisir les stations</Text>
       <View style={styles.selectContainer}>
       <SelectList
-          setSelected={handleLigneChange}
+          setSelected={(value) => {
+            setSelectedLigne(value);
+            handleLigneChange(value); // Optionally call your existing handler if needed
+          }}
           placeholder="Selectionner votre ligne"
           searchPlaceholder="Rechercher une ligne"
-          data={lignes.map(ligne => ({ key: ligne._id, value: ligne.ligne }))} // Map lignes to SelectList data format
+          data={lignes.map(ligne => ({ key: ligne.num, value: ligne.ligne }))} // Map lignes to SelectList data format
           save="value"
           boxStyles={{ backgroundColor: 'white' }}
           dropdownItemStyles={{ backgroundColor: 'white' }}
@@ -100,7 +109,10 @@ const handleLigneChange = (value) => {
      <Image source={require("../assets/fromto.png")} style={styles.fromToImage} />
      <View style={styles.selectContainerThree}>
      <SelectList
-    setSelected={(val) => setSelected(val)}
+    setSelected={(val) =>  {
+      setSelected(val);
+      setStationToLigne(val);
+    }}
     data={[
       { key: '1', value: selected === stationFrom ? stationTo : stationFrom } // Show the remaining station based on the selected value
     ]}
@@ -114,7 +126,10 @@ const handleLigneChange = (value) => {
     </View>
     <View style={styles.selectContainerTwo}>
     <SelectList
-    setSelected={(val) => setSelected(val)}
+    setSelected={(val) =>  {
+      setSelected(val);
+      setStationFromLigne(val);
+    }}
     data={[
       { key: '1', value: stationFrom }, // Show stationFrom
       { key: '2', value: stationTo },   // Show stationTo
@@ -130,7 +145,7 @@ const handleLigneChange = (value) => {
      </View>
      <View style={styles.buttonContainer}>
   {/* Button 1 */}
-  <TouchableOpacity style={styles.searchButton} onPress={() => navigation.navigate('List')}>
+  <TouchableOpacity style={styles.searchButton} onPress={handleRecherche}>
     <Text style={styles.searchButtonText}
     >Recherche</Text>
   </TouchableOpacity>

@@ -1,10 +1,20 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, SafeAreaView, Image, TouchableOpacity, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  SafeAreaView,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import Colors from "../assets/colors"; // Assuming Colors.js defines color styles
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { useNavigation } from '@react-navigation/native';
-
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import LigneService from "../viewModels/generalfile.js";
 const ListTrajet = () => {
   const fontsLoaded = useCustomFonts(); // Load custom fonts
   const navigation = useNavigation();
@@ -13,12 +23,8 @@ const ListTrajet = () => {
     return <Text>Loading fonts...</Text>;
   }
   const [date, setDate] = useState(new Date());
-  const [mode, setMode] = useState('date');
+  const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate;
-    setDate(currentDate);
-  };
 
   const showMode = (currentMode) => {
     setShow(true);
@@ -26,7 +32,7 @@ const ListTrajet = () => {
   };
 
   const showDatepicker = () => {
-    showMode('date');
+    showMode("date");
   };
 
   const goBack = () => {
@@ -34,9 +40,94 @@ const ListTrajet = () => {
   };
 
   const handleTableRowPress = () => {
-    navigation.navigate('Selectionne'); // Navigate to the Selectionne screen
+    navigation.navigate("Selectionne"); // Navigate to the Selectionne screen
   };
 
+  //function to convert string to time and then calculate the heure arrive using the duration
+  function calculateArrivalTime(timeString, durationString) {
+    // Parse time string into hours and minutes
+    const [hours, minutes] = timeString.split(":").map(Number);
+
+    // Parse duration string into hours and minutes
+    const [durationHours, durationMinutes] = durationString
+      .match(/\d+/g)
+      .map(Number);
+
+    // Calculate total minutes for time and duration
+    const totalMinutes =
+      hours * 60 + minutes + durationHours * 60 + durationMinutes;
+
+    // Calculate new hours and minutes
+    const newHours = Math.floor(totalMinutes / 60);
+    const newMinutes = totalMinutes % 60;
+
+    // Format hours and minutes
+    const formattedHours = String(newHours).padStart(2, "0");
+    const formattedMinutes = String(newMinutes).padStart(2, "0");
+
+    // Return formatted arrival time
+    return `${formattedHours}:${formattedMinutes}`;
+  }
+
+  //Getting the session variables and setting where they need to be
+  const [stationFrom, setStationFrom] = useState(""); // State for station from
+  const [stationTo, setStationTo] = useState("");
+  const [ligneData, setLigneData] = useState([]);
+  const [lignes, setLignes] = useState([]);
+  useEffect(() => {
+    // Fetch data from AsyncStorage
+    const fetchData = async () => {
+      try {
+        const selectedData = await AsyncStorage.getItem("selectedData");
+        if (selectedData !== null) {
+          const { stationFromLigne, stationToLigne, selectedLigne } =
+            JSON.parse(selectedData);
+          setStationFrom(stationFromLigne);
+          setStationTo(stationToLigne);
+          console.log("Selected Route:", selectedLigne);
+          const viewModel = new LigneService();
+          const data = await viewModel.getLignesByLigneName(selectedLigne);
+          console.log("Lignes fetched:", data);
+          setLigneData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching data from AsyncStorage:", error);
+        // Handle error
+      }
+    };
+    fetchData();
+  }, []);
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(false);
+    setDate(currentDate);
+
+    const today = new Date();
+    const currentTime = today.getTime(); // Current time in milliseconds
+    const selectedTime = currentDate.getTime(); // Selected time in milliseconds
+
+    // Check if the selected date is before today
+    if (currentDate < today) {
+      console.log("Selected date is before today");
+      setLignes([]); // Clear the scrollview
+    } else if (currentDate == today) {
+      // Show lignes with heure départ or heure retour ahead of current time by at least 30 minutes
+      console.log("Selected date is today");
+      const filteredLignes = ligneData.filter((ligne) => {
+        const heureDepartTime = parseTime(ligne.heure_départ).getTime();
+        const heureRetourTime = parseTime(ligne.heure_retour).getTime();
+        const isHeureDepartValid = heureDepartTime >= currentTime + 30 * 60000; // 30 minutes in milliseconds
+        const isHeureRetourValid = heureRetourTime >= currentTime + 30 * 60000; // 30 minutes in milliseconds
+        return isHeureDepartValid || isHeureRetourValid;
+      });
+      setLignes(filteredLignes);
+    } else {
+      // Show all lignes for future dates
+      console.log("Selected date is in the future");
+      setLignes(ligneData);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -52,6 +143,7 @@ const ListTrajet = () => {
           editable={false}
           placeholder="From"
           placeholderTextColor={Colors.Gray}
+          value={stationFrom}
         />
         <Text style={styles.toText}>Vers </Text>
         <TextInput
@@ -59,10 +151,14 @@ const ListTrajet = () => {
           editable={false}
           placeholder="Destination"
           placeholderTextColor={Colors.Gray}
+          value={stationTo}
         />
       </View>
       <SafeAreaView style={styles.datepicker}>
-        <Image source={require("../assets/calendar.png")} style={styles.calendarIcon} />
+        <Image
+          source={require("../assets/calendar.png")}
+          style={styles.calendarIcon}
+        />
         <DateTimePicker
           testID="dateTimePicker"
           value={date}
@@ -72,31 +168,61 @@ const ListTrajet = () => {
         />
       </SafeAreaView>
       <ScrollView style={styles.tablecont}>
-      <View style={styles.tableContainer}>
-        <ScrollView horizontal>
-          <View style={styles.tableView}>
-            <View style={styles.tableHeader}>
-             
-              <Text style={styles.headerText}>Heure de départ</Text>
-              <Text style={styles.headerText}>Heure d'arrivée</Text>
-              <Text style={styles.headerText}>Durée</Text>
+        <View style={styles.tableContainer}>
+          <ScrollView vertical>
+            <View style={styles.tableView}>
+              <View style={styles.tableHeader}>
+                <Text style={styles.headerText}>Heure de départ</Text>
+                <Text style={styles.headerText}>Heure d'arrivée</Text>
+                <Text style={styles.headerText}>Durée</Text>
+              </View>
+              {/* Render rows based on fetched data */}
+              {lignes.map((ligne, index) => (
+                <TouchableOpacity onPress={handleTableRowPress} key={index}>
+                  <View style={styles.tableRow}>
+                    <Image
+                      source={require("../assets/bus.png")}
+                      style={styles.cellImage}
+                    />
+                    {stationFrom === "Kairouan" ? (
+                      <>
+                        <Text style={styles.cellText}>
+                          {ligne.heure_départ}
+                        </Text>
+                        <Text style={styles.cellText}>
+                          {calculateArrivalTime(
+                            ligne.heure_départ,
+                            ligne.durée
+                          )}
+                        </Text>
+                        <Text style={styles.cellText}>{ligne.durée}</Text>
+                      </>
+                    ) : (
+                      <>
+                        <Text style={styles.cellText}>
+                          {ligne.heure_retour}
+                        </Text>
+                        <Text style={styles.cellText}>
+                          {calculateArrivalTime(
+                            ligne.heure_retour,
+                            ligne.durée
+                          )}
+                        </Text>
+                        <Text style={styles.cellText}>{ligne.durée}</Text>
+                      </>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              ))}
             </View>
-            <TouchableOpacity onPress={handleTableRowPress}>
-            <View style={styles.tableRow}>
-            <Image source={require("../assets/bus.png")} style={styles.cellImage} />
-
-              <Text style={styles.cellText}>09:00</Text>
-              <Text style={styles.cellText}>12:00</Text>
-              <Text style={styles.cellText}>3 hours</Text>
-            </View>
-            </TouchableOpacity>
-            {/* Add more rows as needed */}
-          </View>
-        </ScrollView>
-      </View>
-    </ScrollView>
+          </ScrollView>
+        </View>
+      </ScrollView>
       <TouchableOpacity onPress={goBack} style={styles.backButton}>
-        <Image source={require("../assets/backarrow.png")} style={styles.backArrow} />
+        <Image
+          source={require("../assets/backarrow.png")}
+          style={styles.backArrow}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -114,8 +240,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 20,
     borderColor: Colors.Black,
-    width: '100%',
-    height: '23%', // Adjust thickness as needed
+    width: "100%",
+    height: "23%", // Adjust thickness as needed
     marginVertical: 10,
     position: "absolute", // Adjust spacing as needed
   },
@@ -160,6 +286,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.Gray,
     paddingHorizontal: 10,
     marginRight: 10,
+    textAlign: "center",
+    fontSize: 18,
   },
   toText: {
     fontSize: 20,
@@ -188,7 +316,7 @@ const styles = StyleSheet.create({
   },
   tableContainer: {
     flex: 1,
-    maxHeight: 100,
+    height: "80%",
   },
   tableView: {
     flex: 1,
@@ -223,7 +351,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     marginRight: 5, // Adjust spacing if needed
-  }
+  },
 });
 
 export default ListTrajet;

@@ -66,7 +66,6 @@ const Selectionne = () => {
     }
   };
 
-
   const [price, setPrice] = useState(0);
   const calculatePrice = () => {
     const tarif = selectedLigne?.ligne?.tarif || 0; // Get the tarif from selected ligne
@@ -81,8 +80,6 @@ const Selectionne = () => {
   useEffect(() => {
     calculatePrice();
   }, [adultCount, childCount, disabledCount]);
-
-
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -107,7 +104,6 @@ const Selectionne = () => {
   const closeModal = () => {
     setModalVisible(false);
   };
-  
 
   const navigateToLogin = () => {
     setModalVisible(false);
@@ -118,8 +114,6 @@ const Selectionne = () => {
   const [date, setDate] = useState(new Date());
   const [selectedLigne, setSelectedLigne] = useState({});
 
-
-
   useEffect(() => {
     // Fetch data from AsyncStorage
     const fetchData = async () => {
@@ -129,7 +123,6 @@ const Selectionne = () => {
           const { stationFromLigne, stationToLigne } = JSON.parse(selectedData);
           setStationFrom(stationFromLigne);
           setStationTo(stationToLigne);
-          
         }
         const SelectedLigne = await AsyncStorage.getItem("selectedLigne");
         console.log("Selected Route:", SelectedLigne);
@@ -138,7 +131,7 @@ const Selectionne = () => {
           setSelectedLigne({ ligne, selectedDate });
           console.log("Selected Ligne:", ligne);
           setDate(new Date(selectedDate));
-          console.log("Date:", date) // Set date from AsyncStorage
+          console.log("Date:", date); // Set date from AsyncStorage
         }
       } catch (error) {
         console.error("Error fetching data from AsyncStorage:", error);
@@ -151,7 +144,7 @@ const Selectionne = () => {
     if (!timeString || !durationString) {
       return ""; // Return empty string if timeString is undefined
     }
-  
+
     // Parse time string into hours and minutes
     const [hours, minutes] = timeString.split(":").map(Number);
 
@@ -177,14 +170,14 @@ const Selectionne = () => {
   }
   const formatDuration = (duration) => {
     if (!duration) return ""; // Return empty string if duration is not provided
-  
+
     // Parse the duration string to extract hours and minutes
     const [hours, minutes] = duration.split("h");
-  
+
     // Convert hours and minutes to integers
     const hoursInt = parseInt(hours, 10);
     const minutesInt = parseInt(minutes, 10);
-  
+
     // Format the duration string
     if (hoursInt === 0 && minutesInt === 0) {
       return ""; // Return empty string if duration is 0 hours and 0 minutes
@@ -193,7 +186,9 @@ const Selectionne = () => {
     } else if (minutesInt === 0) {
       return `${hoursInt} heure${hoursInt === 1 ? "" : "s"}`; // Return only hours if minutes is 0
     } else {
-      return `${hoursInt} heure${hoursInt === 1 ? "" : "s"} et ${minutesInt} minute${minutesInt === 1 ? "" : "s"}`; // Return hours and minutes
+      return `${hoursInt} heure${
+        hoursInt === 1 ? "" : "s"
+      } et ${minutesInt} minute${minutesInt === 1 ? "" : "s"}`; // Return hours and minutes
     }
   };
   const [userSession, setUserSession] = useState(null);
@@ -212,36 +207,37 @@ const Selectionne = () => {
     checkUserSession();
   }, []);
   const handleReservation = async () => {
-   
-      // Save values to AsyncStorage
-      try {
-        const reservationData = {
-          price,
-          adultCount,
-          childCount,
-          babyCount,
-          disabledCount,
-          stationFrom,
-          stationTo,
-          date,
-        };
-        console.log(reservationData);
-        await AsyncStorage.setItem("reservationData", JSON.stringify(reservationData));
-        // Navigate to ticket reservation page
-        if (userSession) {
+    // Save values to AsyncStorage
+    try {
+      const reservationData = {
+        price,
+        adultCount,
+        childCount,
+        babyCount,
+        disabledCount,
+        stationFrom,
+        stationTo,
+        date,
+      };
+      console.log(reservationData);
+      await AsyncStorage.setItem(
+        "reservationData",
+        JSON.stringify(reservationData)
+      );
+      // Navigate to ticket reservation page
+      if (userSession) {
         navigation.navigate("Ticket");
       } else {
         // User is not logged in, show login modal
         setModalVisible(true);
       }
-      } catch (error) {
-        console.error("Error saving reservation data to AsyncStorage:", error);
-      }
-    
+    } catch (error) {
+      console.error("Error saving reservation data to AsyncStorage:", error);
+    }
   };
   const formatDate = (date) => {
     if (!date) return ""; // Return empty string if date is not provided
-  
+
     // Convert the date to a formatted string "DD-MM-YYYY"
     return date.toLocaleDateString("fr-FR");
   };
@@ -277,7 +273,6 @@ const Selectionne = () => {
           style={styles.calendarIcon}
         />
         <Text style={styles.dateText}>{formatDate(date)}</Text>
-
       </SafeAreaView>
       <View style={styles.inputContainer}>
         <View style={styles.labelInputRow}>
@@ -544,7 +539,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "23%", // Adjust thickness as needed
     marginVertical: 10,
-    
+
     position: "absolute", // Adjust spacing as needed
   },
   inputContainer: {

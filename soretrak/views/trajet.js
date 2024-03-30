@@ -95,7 +95,7 @@ const Trajet = () => {
     }
   };
   const NavigateToLogin = () => {
-    navigation.navigate("Login"); // Navigate to the login screen
+    navigation.navigate("Login"); // Navigate to the login screen within the AuthScreens navigator
   };
   //handleDashboard
   const handleDashboard = () => {

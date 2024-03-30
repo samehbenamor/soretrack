@@ -52,10 +52,9 @@ const ListTrajet = () => {
     console.log("Selected date:", selectedDate.toLocaleDateString("en-TN"));
 
     const isToday =
-    selectedDate.getDate() === currentDateTime.getDate() &&
-    selectedDate.getMonth() === currentDateTime.getMonth() &&
-    selectedDate.getFullYear() === currentDateTime.getFullYear();
-
+      selectedDate.getDate() === currentDateTime.getDate() &&
+      selectedDate.getMonth() === currentDateTime.getMonth() &&
+      selectedDate.getFullYear() === currentDateTime.getFullYear();
 
     console.log(
       "Current time:",
@@ -84,7 +83,10 @@ const ListTrajet = () => {
     console.log("Time difference:", timeDifference);
 
     // If current time is greater than ligne time or time difference is less than 30 minutes
-    if (isToday && (currentDateTimeMillis > ligneTimeMillis || timeDifference < 30)) {
+    if (
+      isToday &&
+      (currentDateTimeMillis > ligneTimeMillis || timeDifference < 30)
+    ) {
       // Show error message to the user
       Alert.alert(
         "Désolé !",

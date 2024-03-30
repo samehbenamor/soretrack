@@ -14,7 +14,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"; // Import MaterialC
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
 import LigneService from "../viewModels/generalfile.js";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
 const Ticket = () => {
   const fontsLoaded = useCustomFonts();
@@ -91,7 +91,7 @@ const Ticket = () => {
       try {
         // Call the decrementUserCredit method with the user's ID
         await ligneService.decrementUserCredit(userSession.id);
-        navigation.navigate('VotreTrajet'); 
+        navigation.replace("VotreTrajet");
       } catch (error) {
         console.error("Error decrementing user credit:", error);
         // Handle error
@@ -482,7 +482,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     color: "#FF5C5C",
-  
   },
   modalDescription: {
     fontSize: 16,

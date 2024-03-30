@@ -22,9 +22,9 @@ const Login = () => {
   const navigation = useNavigation();
   const NavigateAfterSuccess = () => {
     if (reservationSession) {
-      navigation.navigate('Ticket');
+    navigation.navigate('Ticket');
     } else {
-    navigation.navigate('VotreTrajet');
+    navigation.replace('VotreTrajet');
     } // Navigate to the login screen
   };
 

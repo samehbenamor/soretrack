@@ -24,7 +24,7 @@ const Trajet = () => {
   const [stationFrom, setStationFrom] = useState(""); // State for station from
   const [stationTo, setStationTo] = useState(""); // State for station to
   const [disableStations, setDisableStations] = useState(true); // State to enable/disable station select lists
-
+  var [errorText, setErrorText] = useState("");
   const [stationFromLigne, setStationFromLigne] = useState(""); // State for station from
   const [stationToLigne, setStationToLigne] = useState(""); // State for station from
 
@@ -55,8 +55,32 @@ const Trajet = () => {
     };
     checkUserSession();
   }, []);
+  const [isUser, setIsUser] = useState(false); // State to track if user is a regular user
 
+  useEffect(() => {
+    // Check if user's role is "user"
+    if (userSession?.role === "user") {
+      setIsUser(true); // Set state to indicate user is a regular user
+    } else {
+      setIsUser(false); // Set state to indicate user is not a regular user
+    }
+  }, [userSession]);
   const handleRecherche = async () => {
+    if (!selectedLigne) {
+      setErrorText("*Veuillez choisir une ligne."); // Set error message if no value selected
+      return false; // Return false to indicate validation failure
+    }
+    if (!stationFromLigne) {
+      setErrorText("*Veuillez choisir une station de depart."); // Set error message if no value selected
+      return false; // Return false to indicate validation failure
+    }
+    if (!stationToLigne) {
+      setErrorText("*Veuillez choisir une station de retour."); // Set error message if no value selected
+      return false; // Return false to indicate validation failure
+    }
+
+    //stationFromLigne
+    //stationToLigne
     // Save selected data in AsyncStorage
     try {
       await AsyncStorage.setItem(
@@ -71,10 +95,14 @@ const Trajet = () => {
     }
   };
   const NavigateToLogin = () => {
-    navigation.navigate('Login'); // Navigate to the login screen
+    navigation.navigate("Login"); // Navigate to the login screen
+  };
+  //handleDashboard
+  const handleDashboard = () => {
+    navigation.navigate("AdminChoice"); // Navigate to the login screen
   };
   const NavigateToRegister = () => {
-    navigation.navigate('Register'); // Navigate to the login screen
+    navigation.navigate("Register"); // Navigate to the login screen
   };
   const handleLigneChange = (value) => {
     setSelected(value);
@@ -89,10 +117,11 @@ const Trajet = () => {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('userSession');
+      console.log("Log out should be successful.")
+      await AsyncStorage.removeItem("user");
       setUserSession(null);
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error("Error logging out:", error);
     }
   };
 
@@ -186,6 +215,9 @@ const Trajet = () => {
           disabled={disableStations || !stationFrom} // Disable until a ligne is selected or stationFrom is set
         />
       </View>
+      <View style={styles.errorContrainer}>
+        <Text style={styles.error}>{errorText}</Text>
+      </View>
       <View style={styles.buttonContainer}>
         {/* Button 1 */}
         <TouchableOpacity style={styles.searchButton} onPress={handleRecherche}>
@@ -197,17 +229,41 @@ const Trajet = () => {
               Connecté en tant que{" "}
               <Text style={styles.loggedInUserName}> {userSession.name}</Text>
             </Text>
-            <TouchableOpacity style={styles.logoutButtonBonus} onPress={handleLogout}>
+            {userSession?.role == "user" && (
+            <TouchableOpacity
+              style={styles.logoutButtonBonus}
+              onPress={handleLogout}
+            >
               <Text style={styles.logoutButtonText}>Déconnexion</Text>
             </TouchableOpacity>
+            )}
+            {userSession?.role !== "user" && (
+               <View style={styles.sign}>
+              <TouchableOpacity
+              style={styles.signInButton}
+              onPress={handleLogout}
+            >
+              <Text style={styles.testext}>Déconnexion</Text>
+            </TouchableOpacity>
+        <TouchableOpacity style={styles.loginButton} onPress={handleDashboard}>
+          <Text style={styles.testext}>Dashboard</Text>
+        </TouchableOpacity>
+        </View>
+      )}
           </View>
         ) : (
           // If no user session, display signup and login buttons
-          <View style={styles.sign}>
-            <TouchableOpacity style={styles.signInButton} onPress={NavigateToRegister}>
+          <View style={styles.loggedInSection}>
+            <TouchableOpacity
+              style={styles.logoutButtonBonus}
+              onPress={NavigateToRegister}
+            >
               <Text style={styles.signInButtonText}>S'inscrire</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.loginButton} onPress={NavigateToLogin}>
+            <TouchableOpacity
+              style={styles.logoutButtonBonus}
+              onPress={NavigateToLogin}
+            >
               <Text style={styles.loginButtonText}>Se connecter</Text>
             </TouchableOpacity>
           </View>
@@ -251,6 +307,18 @@ const styles = StyleSheet.create({
     color: "white",
     fontFamily: "Itim",
     fontSize: 36,
+  },
+  error: {
+    //fontFamily: 'Bold',
+    fontSize: 12,
+    textAlign: "center",
+    color: "#FF5C5C",
+  },
+  errorContrainer: {
+    width: "100%",
+    position: "absolute",
+    marginTop: 600,
+    marginLeft: 30,
   },
   title: {
     fontSize: 48,
@@ -372,7 +440,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: "100%",
-    marginTop: 420,
+    marginTop: 430,
   },
   searchButton: {
     backgroundColor: Colors.Blue,
@@ -387,6 +455,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: "center",
     borderRadius: 20,
+    marginTop: 10,
   },
   searchButtonText: {
     fontFamily: "Itim",
@@ -395,32 +464,36 @@ const styles = StyleSheet.create({
   },
   signInButton: {
     backgroundColor: Colors.Yellow,
-    width: "48%",
-    paddingVertical: 10,
     alignItems: "center",
     borderRadius: 10,
+    padding: 10,
+    marginRight: 10,
   },
   signInButtonText: {
+    fontFamily: "Itim",
+    fontSize: 36,
+    color: Colors.Black,
+  },
+  testext: {
     fontFamily: "Itim",
     fontSize: 20,
     color: Colors.Black,
   },
   loginButton: {
     backgroundColor: Colors.Yellow,
-    width: "48%",
-    paddingVertical: 10,
     alignItems: "center",
     borderRadius: 10,
+    padding: 10,
   },
   loginButtonText: {
     fontFamily: "Itim",
-    fontSize: 20,
+    fontSize: 36,
     color: Colors.Black,
   },
   sign: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
+    width: "100%",
+    justifyContent: "center",
   },
 });
 

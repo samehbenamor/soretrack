@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BACKEND_URL_ligne } from '../configuration'; // Import the global constant
+import { BACKEND_URL_ligne } from '../configuration'; 
+import { BACKEND_URL_User } from '../configuration';// Import the global constant
 import axios from 'axios';
 
 class LigneService {
@@ -44,6 +45,15 @@ class LigneService {
       // Handle errors here
       console.error('Error fetching lignes by ligne name:', error);
       throw error; // Re-throw the error to handle it in the calling code
+    }
+  }
+  async decrementUserCredit(userId) {
+    try {
+      const response = await axios.put(`${BACKEND_URL_User}${userId}/decrement-credit`);
+      return response.data;
+    } catch (error) {
+      console.error('Error decrementing user credit:', error);
+      throw error;
     }
   }
   

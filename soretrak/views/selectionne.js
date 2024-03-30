@@ -117,6 +117,9 @@ const Selectionne = () => {
   const [stationTo, setStationTo] = useState("");
   const [date, setDate] = useState(new Date());
   const [selectedLigne, setSelectedLigne] = useState({});
+
+
+
   useEffect(() => {
     // Fetch data from AsyncStorage
     const fetchData = async () => {
@@ -209,7 +212,7 @@ const Selectionne = () => {
     checkUserSession();
   }, []);
   const handleReservation = async () => {
-    if (userSession) {
+   
       // Save values to AsyncStorage
       try {
         const reservationData = {
@@ -225,14 +228,16 @@ const Selectionne = () => {
         console.log(reservationData);
         await AsyncStorage.setItem("reservationData", JSON.stringify(reservationData));
         // Navigate to ticket reservation page
+        if (userSession) {
         navigation.navigate("Ticket");
+      } else {
+        // User is not logged in, show login modal
+        setModalVisible(true);
+      }
       } catch (error) {
         console.error("Error saving reservation data to AsyncStorage:", error);
       }
-    } else {
-      // User is not logged in, show login modal
-      setModalVisible(true);
-    }
+    
   };
   const formatDate = (date) => {
     if (!date) return ""; // Return empty string if date is not provided

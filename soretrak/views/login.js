@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from "react-native";
 import Colors from "../assets/colors";
 import emailIcon from "../assets/email.png";
@@ -11,7 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const Login = () => {
-    const fontsLoaded = useCustomFonts(); // Use the custom hook
+  const fontsLoaded = useCustomFonts();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,10 +21,28 @@ const Login = () => {
   };
   const navigation = useNavigation();
   const NavigateAfterSuccess = () => {
-    navigation.navigate('VotreTrajet'); // Navigate to the login screen
+    if (reservationSession) {
+      navigation.navigate('Ticket');
+    } else {
+    navigation.navigate('VotreTrajet');
+    } // Navigate to the login screen
   };
 
-
+  const [reservationSession, setReservation] = useState(null);
+  useEffect(() => {
+    const checkReservationSession = async () => {
+      try {
+        const sessionData = await AsyncStorage.getItem("reservationData");
+        if (sessionData !== null) {
+          // User session found, set it in state
+          setReservation(JSON.parse(sessionData));
+        }
+      } catch (error) {
+        console.error("Error checking user session:", error);
+      }
+    };
+    checkReservationSession();
+  }, []);
   const login = async () => {
     try {
       setErrorText("");

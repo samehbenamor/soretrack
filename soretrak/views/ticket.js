@@ -1,17 +1,59 @@
-import React, { useState }  from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView } from "react-native";
 import Colors from "../assets/colors"; // Assuming Colors.js defines color styles
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Ticket = () => {
 
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [password, setPassword] = useState("");
+    const [date, setDate] = useState(new Date());
+
+    const [selectedLigne, setSelectedLigne] = useState({});
+    const [SelectedReservation, setSelectedReservation] = useState({});
+    useEffect(() => {
+      const loadFromAsyncStorage = async () => {
+        try {
+          const storedReservationData = await AsyncStorage.getItem('reservationData');
+          const storedSelectedLigne = await AsyncStorage.getItem('selectedLigne');
+
+          console.log("///////////////////////////////");
+          console.log("This is the stored reservation data:", storedReservationData);
+          console.log("/////////Ticket page///////////");
+          console.log("This is the stored Selected Ligne data:", storedSelectedLigne);
+          console.log("///////////////////////////////");
+
+
+          if (storedReservationData !== null) {
+            setSelectedReservation(JSON.parse(storedReservationData));
+          }
+    
+          if (storedSelectedLigne !== null) {
+            setSelectedLigne(JSON.parse(storedSelectedLigne));
+          }
+    
+          console.log('Data loaded from AsyncStorage');
+        } catch (error) {
+          console.error('Error loading data from AsyncStorage:', error);
+        }
+      };
+    
+      loadFromAsyncStorage();
+    }, []);
+
     const togglePasswordVisibility = () => {
       setIsPasswordVisible(!isPasswordVisible);
     };
     const handleConfirm = () => {
         // Add functionality to handle confirmation here
+      };
+
+      const formatDate = (date) => {
+        if (!date) return ""; // Return empty string if date is not provided
+      
+        // Convert the date to a formatted string "DD-MM-YYYY"
+        return date.toLocaleDateString("fr-FR");
       };
   return (
     
@@ -28,12 +70,12 @@ const Ticket = () => {
         {/* Left Column */}
         <View style={styles.column}>
           <Text style={styles.label}>De:</Text>
-          <TextInput style={styles.input} placeholder="Input 1" />
+          <TextInput style={styles.input} placeholder="Input 1" value={SelectedReservation.stationFrom} editable={false}/>
         </View>
         {/* Right Column */}
         <View style={styles.column}>
           <Text style={styles.label}>A:</Text>
-          <TextInput style={styles.input} placeholder="Input 2" />
+          <TextInput style={styles.input} placeholder="Input 2"  value={SelectedReservation.stationTo} editable={false}/>
         </View>
       </View>
       
@@ -41,12 +83,12 @@ const Ticket = () => {
         {/* Left Column */}
         <View style={styles.column}>
           <Text style={styles.label}>Date du voyage:</Text>
-          <TextInput style={styles.input} placeholder="Input 1" />
+          <TextInput style={styles.input} placeholder="Input 1" value={formatDate(SelectedReservation.date)} editable={false}/>
         </View>
         {/* Right Column */}
         <View style={styles.column}>
           <Text style={styles.label}>Date de réservation:</Text>
-          <TextInput style={styles.input} placeholder="Input 2" />
+          <TextInput style={styles.input} placeholder="Input 2" editable={false}/>
         </View>
       </View>
 
@@ -54,12 +96,12 @@ const Ticket = () => {
         {/* Left Column */}
         <View style={styles.column}>
           <Text style={styles.label}>Temps de départ:</Text>
-          <TextInput style={styles.input} placeholder="Input 1" />
+          <TextInput style={styles.input} placeholder="Input 1" editable={false}/>
         </View>
         {/* Right Column */}
         <View style={styles.column}>
           <Text style={styles.label}>Nombre de voyageurs:</Text>
-          <TextInput style={styles.input} placeholder="Input 2" />
+          <TextInput style={styles.input} placeholder="Input 2" editable={false}/>
         </View>
       </View>
 
@@ -67,12 +109,12 @@ const Ticket = () => {
         {/* Left Column */}
         <View style={styles.column}>
           <Text style={styles.label}>Nombre d'adultes:</Text>
-          <TextInput style={styles.input} placeholder="Input 1" />
+          <TextInput style={styles.input} placeholder="Input 1" editable={false}/>
         </View>
         {/* Right Column */}
         <View style={styles.column}>
           <Text style={styles.label}>Nombre d'enfants:</Text>
-          <TextInput style={styles.input} placeholder="Input 2" />
+          <TextInput style={styles.input} placeholder="Input 2" editable={false}/>
         </View>
       </View>
 
@@ -80,13 +122,21 @@ const Ticket = () => {
         {/* Left Column */}
         <View style={styles.column}>
           <Text style={styles.label}>Nombre de bébés:</Text>
-          <TextInput style={styles.input} placeholder="Input 1" />
+          <TextInput style={styles.input} placeholder="Input 1" editable={false} />
         </View>
         {/* Right Column */}
         <View style={styles.column}>
           <Text style={styles.label}>Nombre de handicapées:</Text>
-          <TextInput style={styles.input} placeholder="Input 2" />
+          <TextInput style={styles.input} placeholder="Input 2" editable={false}/>
         </View>
+      </View>
+      <View style={styles.rowprix}>
+        {/* Left Column */}
+       
+          <Text style={styles.label}>Prix total:</Text>
+          <TextInput style={styles.inputprix} placeholder="Input 1" editable={false}/>
+   
+        
       </View>
       <View style={styles.separator} />
       <Text style={styles.paymentLabel}>Entrer votre code pour effectuer le paiement</Text>
@@ -167,6 +217,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginVertical: 10,
   },
+  
   column: {
     flex: 1,
     marginRight: 20,
@@ -180,12 +231,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.Yellow,
     height: 40,
-    paddingHorizontal: 50,
+    paddingHorizontal: 5,
+    fontFamily: "Inter",
+    fontSize: 16,
+
+    color: Colors.Blue,
+    marginTop: 5,
+  },
+  inputprix: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.Yellow,
+    height: 40,
+    paddingHorizontal: 150,
     fontFamily: "Inter",
     fontSize: 16,
     textAlignVertical: "center",
     color: Colors.Blue,
     marginTop: 5,
+   
+  },
+  rowprix: {
+    marginVertical: 10,
   },
   eyeIconContainer: {
     position: "absolute", // Position absolute to position it inside the passField

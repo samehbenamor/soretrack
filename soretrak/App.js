@@ -22,6 +22,8 @@ export default function App() {
     <NavigationContainer  >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="VotreTrajet" component={trajet} />
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="AdminChoice" component={AdminChoice} />
         <Stack.Screen name="ManageTrajets" component={ManageTrajets} />
         <Stack.Screen name="AjouterLigne" component={AjouterLigne} /> 
@@ -29,9 +31,7 @@ export default function App() {
         <Stack.Screen name="ManageClients" component={ManageClients} /> 
         
         <Stack.Screen name="List" component={ListTrajet} />
-        <Stack.Screen name="Selectionne" component={Selectionne} /> 
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="Selectionne" component={Selectionne} />         
         <Stack.Screen name="Ticket" component={Ticket} />
       </Stack.Navigator>
     </NavigationContainer>

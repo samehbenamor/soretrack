@@ -6,16 +6,62 @@ import passwordIcon from "../assets/password.png";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
 import { useNavigation } from '@react-navigation/native';
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
+import loginViewModel from "../viewModels/loginViewModel";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const Login = () => {
     const fontsLoaded = useCustomFonts(); // Use the custom hook
-
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  var [errorText, setErrorText] = useState("");
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
   const navigation = useNavigation();
+  const NavigateAfterSuccess = () => {
+    navigation.navigate('VotreTrajet'); // Navigate to the login screen
+  };
+
+
+  const login = async () => {
+    try {
+      setErrorText("");
+      if (email === "" || password === "") {
+        setErrorText("*Remplir tous les champs avant de s'inscrire");
+        return;
+      }
+
+      const newUser = await loginViewModel.Loginn(email, password);
+      console.log("User logged in successfully:", newUser);
+
+      if (newUser && newUser.token) {
+        console.log("Token saved successfully:", newUser.token);
+        // Check if newUser and token exist
+        await AsyncStorage.setItem("userToken", newUser.token);
+        //console.log("Token saved successfully:", newUser);
+        // Save user data after successful login
+        const user = await loginViewModel.saveUser(newUser.token);
+        console.log("Test");
+        console.log("si khouna:", user);
+        //navigateToProfile();
+        NavigateAfterSuccess();
+      } else {
+        // Handle failed login (e.g., invalid credentials)
+        setErrorText("Courriel ou mot de passe invalide.");
+      }
+    } catch (error) {
+      // console.error('Error logging in user:', error);
+      // Handle other errors, e.g., network issues
+      if (error.message === "Invalid email or password.") {
+        setErrorText("*Courriel ou mot de passe invalide.");
+      } else {
+        setErrorText("*Un problème s'est produit. Veuillez réessayer plus tard.");
+      }
+    }
+  };
+
 
   return (
     <View style={styles.container}>
@@ -29,6 +75,7 @@ const Login = () => {
           style={styles.input}
           placeholder="Email"
           placeholderTextColor={Colors.Gray}
+          onChangeText={setEmail}
         />
       </View>
       <View style={styles.inputContainer}>
@@ -51,8 +98,11 @@ const Login = () => {
             />
           </TouchableOpacity>
       </View>
+      <View style={styles.errorContrainer}>
+        <Text style={styles.error}>{errorText}</Text>
+      </View>
       
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={login}>
         <Text style={styles.buttonText}>Se connecter</Text>
       </TouchableOpacity>
       <View style={styles.separator} />
@@ -93,6 +143,19 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 15,
     zIndex: 1,
+  },
+  error: {
+    //fontFamily: 'Bold',
+    fontSize: 12,
+    textAlign: "center",
+    color: "#FF5C5C",
+  },
+  errorContrainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 20,
   },
   input: {
     flex: 1,

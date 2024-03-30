@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import Colors from "../assets/colors"; // Assuming Colors.js defines color styles
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
@@ -39,8 +40,75 @@ const ListTrajet = () => {
     navigation.goBack();
   };
 
-  const handleTableRowPress = () => {
-    navigation.navigate("Selectionne"); // Navigate to the Selectionne screen
+  const parseTime = (timeString) => {
+    const [hours, minutes] = timeString.split(":").map(Number);
+    const currentDate = new Date();
+    currentDate.setHours(hours, minutes, 0, 0); // Set hours and minutes, and clear seconds and milliseconds
+    return currentDate;
+  };
+  const handleTableRowPress = async (ligne) => {
+    const currentDateTime = new Date();
+    const selectedDate = new Date(date);
+    console.log("Selected date:", selectedDate.toLocaleDateString("en-TN"));
+
+    const isToday =
+    selectedDate.getDate() === currentDateTime.getDate() &&
+    selectedDate.getMonth() === currentDateTime.getMonth() &&
+    selectedDate.getFullYear() === currentDateTime.getFullYear();
+
+
+    console.log(
+      "Current time:",
+      currentDateTime.toLocaleString("en-TN", { timeZone: "Africa/Tunis" })
+    );
+
+    const ligneTime =
+      stationFrom === "Kairouan"
+        ? parseTime(ligne.heure_départ)
+        : parseTime(ligne.heure_retour);
+    console.log(
+      "Time selected:",
+      ligneTime.toLocaleString("en-TN", { timeZone: "Africa/Tunis" })
+    );
+
+    // Convert both times to milliseconds since the Unix epoch for accurate comparison
+    const currentDateTimeMillis = currentDateTime.getTime();
+    console.log("Current time in milliseconds:", currentDateTimeMillis);
+
+    const ligneTimeMillis = ligneTime.getTime();
+    console.log("Time selected in milliseconds:", ligneTimeMillis);
+
+    // Calculate the difference in minutes between current time and ligne time
+    const timeDifference =
+      Math.abs(currentDateTimeMillis - ligneTimeMillis) / (1000 * 60);
+    console.log("Time difference:", timeDifference);
+
+    // If current time is greater than ligne time or time difference is less than 30 minutes
+    if (isToday && (currentDateTimeMillis > ligneTimeMillis || timeDifference < 30)) {
+      // Show error message to the user
+      Alert.alert(
+        "Désolé !",
+        "Vous ne pouvez pas sélectionner cette ligne de voyage parce qu'elle est déjà partie ou qu'elle partira dans moins de 30 minutes.",
+        [
+          {
+            text: "OK",
+            onPress: () => console.log("OK Pressed"),
+            style: "cancel",
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      try {
+        await AsyncStorage.setItem(
+          "selectedLigne",
+          JSON.stringify({ ligne, selectedDate: date })
+        );
+        navigation.navigate("Selectionne");
+      } catch (error) {
+        console.error("Error saving data to AsyncStorage:", error);
+      }
+    }
   };
 
   //function to convert string to time and then calculate the heure arrive using the duration
@@ -88,6 +156,7 @@ const ListTrajet = () => {
           const viewModel = new LigneService();
           const data = await viewModel.getLignesByLigneName(selectedLigne);
           console.log("Lignes fetched:", data);
+          setLignes(data);
           setLigneData(data);
         }
       } catch (error) {
@@ -102,29 +171,21 @@ const ListTrajet = () => {
     const currentDate = selectedDate || date;
     setShow(false);
     setDate(currentDate);
-
+    //setLignes(data);
     const today = new Date();
-    const currentTime = today.getTime(); // Current time in milliseconds
-    const selectedTime = currentDate.getTime(); // Selected time in milliseconds
+    const currentTime = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    ); // Set current time to today at midnight
 
     // Check if the selected date is before today
-    if (currentDate < today) {
+    if (currentDate < currentTime) {
       console.log("Selected date is before today");
       setLignes([]); // Clear the scrollview
-    } else if (currentDate == today) {
-      // Show lignes with heure départ or heure retour ahead of current time by at least 30 minutes
-      console.log("Selected date is today");
-      const filteredLignes = ligneData.filter((ligne) => {
-        const heureDepartTime = parseTime(ligne.heure_départ).getTime();
-        const heureRetourTime = parseTime(ligne.heure_retour).getTime();
-        const isHeureDepartValid = heureDepartTime >= currentTime + 30 * 60000; // 30 minutes in milliseconds
-        const isHeureRetourValid = heureRetourTime >= currentTime + 30 * 60000; // 30 minutes in milliseconds
-        return isHeureDepartValid || isHeureRetourValid;
-      });
-      setLignes(filteredLignes);
     } else {
       // Show all lignes for future dates
-      console.log("Selected date is in the future");
+      console.log("Selected date is in the present or future");
       setLignes(ligneData);
     }
   };
@@ -178,7 +239,10 @@ const ListTrajet = () => {
               </View>
               {/* Render rows based on fetched data */}
               {lignes.map((ligne, index) => (
-                <TouchableOpacity onPress={handleTableRowPress} key={index}>
+                <TouchableOpacity
+                  onPress={() => handleTableRowPress(ligne)}
+                  key={index}
+                >
                   <View style={styles.tableRow}>
                     <Image
                       source={require("../assets/bus.png")}

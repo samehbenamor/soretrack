@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import Colors from "../assets/colors"; // Assuming Colors.js defines color style
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const Selectionne = () => {
   const fontsLoaded = useCustomFonts(); // Load custom fonts
   const navigation = useNavigation();
@@ -21,7 +21,7 @@ const Selectionne = () => {
   if (!fontsLoaded) {
     return <Text>Loading fonts...</Text>;
   }
-  const [date, setDate] = useState(new Date());
+
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
 
@@ -66,6 +66,24 @@ const Selectionne = () => {
     }
   };
 
+
+  const [price, setPrice] = useState(0);
+  const calculatePrice = () => {
+    const tarif = selectedLigne?.ligne?.tarif || 0; // Get the tarif from selected ligne
+    const adultPrice = adultCount * tarif; // Calculate adult price
+    const childPrice = (childCount * tarif) / 2; // Calculate child price
+    const babyPrice = 0; // Babies are free
+    const disabledPrice = (disabledCount * tarif) / 4; // Calculate disabled price
+    const totalPrice = adultPrice + childPrice + babyPrice + disabledPrice; // Calculate total price
+    const roundedPrice = totalPrice.toFixed(2); // Round the total price to two decimal places
+    setPrice(roundedPrice); // Update the price state
+  };
+  useEffect(() => {
+    calculatePrice();
+  }, [adultCount, childCount, disabledCount]);
+
+
+
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
     setDate(currentDate);
@@ -89,19 +107,139 @@ const Selectionne = () => {
   const closeModal = () => {
     setModalVisible(false);
   };
-  const handleReservation = () => {
-    // Handle reservation logic
-    // For now, just open the modal
-     //setModalVisible(true);
-    navigation.navigate('Ticket');
-  };
+  
 
   const navigateToLogin = () => {
     setModalVisible(false);
-    navigation.navigate('Login');
+    navigation.navigate("Login");
   };
+  const [stationFrom, setStationFrom] = useState(""); // State for station from
+  const [stationTo, setStationTo] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [selectedLigne, setSelectedLigne] = useState({});
+  useEffect(() => {
+    // Fetch data from AsyncStorage
+    const fetchData = async () => {
+      try {
+        const selectedData = await AsyncStorage.getItem("selectedData");
+        if (selectedData !== null) {
+          const { stationFromLigne, stationToLigne } = JSON.parse(selectedData);
+          setStationFrom(stationFromLigne);
+          setStationTo(stationToLigne);
+          
+        }
+        const SelectedLigne = await AsyncStorage.getItem("selectedLigne");
+        console.log("Selected Route:", SelectedLigne);
+        if (SelectedLigne !== null) {
+          const { ligne, selectedDate } = JSON.parse(SelectedLigne);
+          setSelectedLigne({ ligne, selectedDate });
+          console.log("Selected Ligne:", ligne);
+          setDate(new Date(selectedDate));
+          console.log("Date:", date) // Set date from AsyncStorage
+        }
+      } catch (error) {
+        console.error("Error fetching data from AsyncStorage:", error);
+        // Handle error
+      }
+    };
+    fetchData();
+  }, []);
+  function calculateArrivalTime(timeString, durationString) {
+    if (!timeString || !durationString) {
+      return ""; // Return empty string if timeString is undefined
+    }
   
+    // Parse time string into hours and minutes
+    const [hours, minutes] = timeString.split(":").map(Number);
+
+    // Parse duration string into hours and minutes
+    const [durationHours, durationMinutes] = durationString
+      .match(/\d+/g)
+      .map(Number);
+
+    // Calculate total minutes for time and duration
+    const totalMinutes =
+      hours * 60 + minutes + durationHours * 60 + durationMinutes;
+
+    // Calculate new hours and minutes
+    const newHours = Math.floor(totalMinutes / 60);
+    const newMinutes = totalMinutes % 60;
+
+    // Format hours and minutes
+    const formattedHours = String(newHours).padStart(2, "0");
+    const formattedMinutes = String(newMinutes).padStart(2, "0");
+
+    // Return formatted arrival time
+    return `${formattedHours}:${formattedMinutes}`;
+  }
+  const formatDuration = (duration) => {
+    if (!duration) return ""; // Return empty string if duration is not provided
   
+    // Parse the duration string to extract hours and minutes
+    const [hours, minutes] = duration.split("h");
+  
+    // Convert hours and minutes to integers
+    const hoursInt = parseInt(hours, 10);
+    const minutesInt = parseInt(minutes, 10);
+  
+    // Format the duration string
+    if (hoursInt === 0 && minutesInt === 0) {
+      return ""; // Return empty string if duration is 0 hours and 0 minutes
+    } else if (hoursInt === 0) {
+      return `${minutesInt} minute${minutesInt === 1 ? "" : "s"}`; // Return only minutes if hours is 0
+    } else if (minutesInt === 0) {
+      return `${hoursInt} heure${hoursInt === 1 ? "" : "s"}`; // Return only hours if minutes is 0
+    } else {
+      return `${hoursInt} heure${hoursInt === 1 ? "" : "s"} et ${minutesInt} minute${minutesInt === 1 ? "" : "s"}`; // Return hours and minutes
+    }
+  };
+  const [userSession, setUserSession] = useState(null);
+  useEffect(() => {
+    const checkUserSession = async () => {
+      try {
+        const sessionData = await AsyncStorage.getItem("user");
+        if (sessionData !== null) {
+          // User session found, set it in state
+          setUserSession(JSON.parse(sessionData));
+        }
+      } catch (error) {
+        console.error("Error checking user session:", error);
+      }
+    };
+    checkUserSession();
+  }, []);
+  const handleReservation = async () => {
+    if (userSession) {
+      // Save values to AsyncStorage
+      try {
+        const reservationData = {
+          price,
+          adultCount,
+          childCount,
+          babyCount,
+          disabledCount,
+          stationFrom,
+          stationTo,
+          date,
+        };
+        console.log(reservationData);
+        await AsyncStorage.setItem("reservationData", JSON.stringify(reservationData));
+        // Navigate to ticket reservation page
+        navigation.navigate("Ticket");
+      } catch (error) {
+        console.error("Error saving reservation data to AsyncStorage:", error);
+      }
+    } else {
+      // User is not logged in, show login modal
+      setModalVisible(true);
+    }
+  };
+  const formatDate = (date) => {
+    if (!date) return ""; // Return empty string if date is not provided
+  
+    // Convert the date to a formatted string "DD-MM-YYYY"
+    return date.toLocaleDateString("fr-FR");
+  };
 
   return (
     <View style={styles.container}>
@@ -117,6 +255,7 @@ const Selectionne = () => {
           editable={false}
           placeholder="From"
           placeholderTextColor={Colors.Gray}
+          value={stationFrom}
         />
         <Text style={styles.toText}>Vers </Text>
         <TextInput
@@ -124,6 +263,7 @@ const Selectionne = () => {
           editable={false}
           placeholder="Destination"
           placeholderTextColor={Colors.Gray}
+          value={stationTo}
         />
       </View>
       <SafeAreaView style={styles.datepicker}>
@@ -131,13 +271,8 @@ const Selectionne = () => {
           source={require("../assets/calendar.png")}
           style={styles.calendarIcon}
         />
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode={mode}
-          is24Hour={true}
-          onChange={onChange}
-        />
+        <Text style={styles.dateText}>{formatDate(date)}</Text>
+
       </SafeAreaView>
       <View style={styles.inputContainer}>
         <View style={styles.labelInputRow}>
@@ -147,6 +282,11 @@ const Selectionne = () => {
             editable={false}
             placeholder="Heure de Débart"
             placeholderTextColor={Colors.Gray}
+            value={
+              stationFrom === "Kairouan"
+                ? selectedLigne?.ligne?.heure_départ || ""
+                : selectedLigne?.ligne?.heure_retour || ""
+            }
           />
         </View>
         <View style={styles.labelInputRow}>
@@ -156,6 +296,17 @@ const Selectionne = () => {
             editable={false}
             placeholder="Heure d'arrivé"
             placeholderTextColor={Colors.Gray}
+            value={
+              stationFrom === "Kairouan"
+                ? calculateArrivalTime(
+                    selectedLigne?.ligne?.heure_départ,
+                    selectedLigne?.ligne?.durée
+                  ) || ""
+                : calculateArrivalTime(
+                    selectedLigne?.ligne?.heure_retour,
+                    selectedLigne?.ligne?.durée
+                  ) || ""
+            }
           />
         </View>
         <View style={styles.labelInputRow}>
@@ -165,8 +316,10 @@ const Selectionne = () => {
             editable={false}
             placeholder="Durée"
             placeholderTextColor={Colors.Gray}
+            value={formatDuration(selectedLigne?.ligne?.durée) || ""}
           />
         </View>
+
         <View style={styles.separator}></View>
         {/* Subtitle */}
         <Text style={styles.subTitle}>Nature Billet</Text>
@@ -253,30 +406,30 @@ const Selectionne = () => {
         <View style={styles.separator}></View>
         <View style={styles.subTitleContainer}>
           <Text style={styles.subTitle}>Montant à payer (TND): </Text>
-          <Text style={styles.price}>100 TND</Text>
+          <Text style={styles.price}>{price} TND</Text>
         </View>
       </View>
-        
+
       <View style={styles.infoContainer}>
         <Text style={styles.infoText}>
-          <Text style={styles.red2}>*</Text>Enfant (entre 3 et 7 ans): Demi tarif, 
-        
-          <Text style={styles.red2}>*</Text>Bébé (inférieur à 3 ans): Gratuit, 
-          
+          <Text style={styles.red2}>*</Text>Enfant (entre 3 et 7 ans): Demi
+          tarif,
+          <Text style={styles.red2}>*</Text>Bébé (inférieur à 3 ans): Gratuit,
           <Text style={styles.red2}>*</Text>Handicapé: 1/4 tarif
         </Text>
-      
       </View>
       <View style={styles.rowContainer}>
+        <TouchableOpacity onPress={goBack} style={styles.backButton}>
+          <Image
+            source={require("../assets/backarrow.png")}
+            style={styles.backArrow}
+          />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={goBack} style={styles.backButton}>
-        <Image
-          source={require("../assets/backarrow.png")}
-          style={styles.backArrow}
-        />
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.reserveButton} onPress={handleReservation}>
+        <TouchableOpacity
+          style={styles.reserveButton}
+          onPress={handleReservation}
+        >
           <Text style={styles.reserveButtonText}>Réserver</Text>
         </TouchableOpacity>
       </View>
@@ -293,10 +446,16 @@ const Selectionne = () => {
               Vous devez vous connecter avant de procéder au paiement
             </Text>
             <View style={styles.buttonContainerModal}>
-              <TouchableOpacity style={[styles.buttonModal, styles.cancelButton]} onPress={closeModal}>
+              <TouchableOpacity
+                style={[styles.buttonModal, styles.cancelButton]}
+                onPress={closeModal}
+              >
                 <Text style={styles.buttonTextModal}>Annuler</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.buttonModal, styles.connectButton]} onPress={navigateToLogin}>
+              <TouchableOpacity
+                style={[styles.buttonModal, styles.connectButton]}
+                onPress={navigateToLogin}
+              >
                 <Text style={styles.buttonTextModal}>Se connecter</Text>
               </TouchableOpacity>
             </View>
@@ -314,11 +473,11 @@ const styles = StyleSheet.create({
     padding: 30,
   },
   rowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly', // Adjust as needed
+    flexDirection: "row",
+    justifyContent: "space-evenly", // Adjust as needed
     marginHorizontal: 30, // Adjust as needed
     marginBottom: 30,
-    marginTop: 10 // Adjust as needed
+    marginTop: 10, // Adjust as needed
   },
   backButton: {
     alignSelf: "center",
@@ -328,7 +487,7 @@ const styles = StyleSheet.create({
     height: 60,
   },
   reserveButton: {
- // Adjust as needed
+    // Adjust as needed
 
     width: 150,
     backgroundColor: Colors.Blue,
@@ -345,7 +504,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     marginVertical: 10,
-    alignItems: "center"
+    alignItems: "center",
   },
   infoText: {
     zIndex: -1,
@@ -380,6 +539,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "23%", // Adjust thickness as needed
     marginVertical: 10,
+    
     position: "absolute", // Adjust spacing as needed
   },
   inputContainer: {
@@ -403,6 +563,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: Colors.Gray,
     paddingHorizontal: 10,
+    fontSize: 18,
   },
   title: {
     fontSize: 36,
@@ -441,6 +602,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.Gray,
     paddingHorizontal: 10,
     marginRight: 10,
+    textAlign: "center",
+    fontSize: 18,
   },
   toText: {
     fontSize: 20,
@@ -450,15 +613,19 @@ const styles = StyleSheet.create({
   datepicker: {
     marginTop: 10,
     marginLeft: 90,
+    marginBottom: 10,
     flexDirection: "row",
     alignItems: "center",
+  },
+  dateText: {
+    fontSize: 18,
+    marginLeft: 10,
   },
   calendarIcon: {
     width: 24,
     height: 24,
     marginRight: 10,
   },
-  
 
   separator: {
     borderBottomWidth: 1,

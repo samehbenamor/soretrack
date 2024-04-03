@@ -23,7 +23,9 @@
     "react-native": "0.73.6",
     "react-native-date-picker": "^4.4.2",
     "react-native-dropdown-select-list": "^2.0.5",
-    "react-navigation": "^5.0.0"
+    "react-native-snackbar-component": "^1.1.12",
+    "react-navigation": "^5.0.0",
+    "expo-notifications": "~0.27.6"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

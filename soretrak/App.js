@@ -23,26 +23,34 @@ export default function App() {
   useEffect(() => {
     const clearSessionVariables = async () => {
       try {
-        // Clear all session variables
-        await AsyncStorage.clear();
-        console.log("Session variables cleared successfully.");
+        // Check if there are any session variables
+        const keys = await AsyncStorage.getAllKeys();
+        if (keys.length > 0) {
+          // Clear all session variables
+          await AsyncStorage.clear();
+          console.log("Session variables cleared successfully.");
+        } else {
+          console.log("No session variables to clear.");
+        }
       } catch (error) {
         console.error("Error clearing session variables:", error);
       }
     };
-
+  
     // Call the function to clear session variables when the app starts
     clearSessionVariables();
   }, []);
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="VotreTrajet" component={trajet} />
+      <Stack.Screen name="VotreTrajet" component={trajet} />
+      <Stack.Screen name="AdminChoice" component={AdminChoice} />
+        
         <Stack.Screen name="ManageTrajets" component={ManageTrajets} />
         <Stack.Screen name="Login" component={Login} />
 
         <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen name="AdminChoice" component={AdminChoice} />
+        
 
         <Stack.Screen name="AjouterLigne" component={AjouterLigne} />
         <Stack.Screen name="ModifierLigne" component={ModifierLigne} />

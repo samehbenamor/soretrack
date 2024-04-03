@@ -13,6 +13,7 @@ const Register = () => {
     const navigation = useNavigation();
 
   const handleLoginPress = () => {
+    setShowModal(false); 
     navigation.navigate('Login'); // Navigate to the login screen
   };
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -191,7 +192,7 @@ const Register = () => {
               <TouchableOpacity
                 style={[styles.buttonModal, styles.connectButton]}
               >
-                <Text style={styles.buttonTextModal}>Se connecter</Text>
+                <Text style={styles.buttonTextModal} onPress={handleLoginPress}>Se connecter</Text>
               </TouchableOpacity>
             </View>
           </View>

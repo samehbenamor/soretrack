@@ -107,7 +107,7 @@ const Selectionne = () => {
 
   const navigateToLogin = () => {
     setModalVisible(false);
-    navigation.navigate("Login");
+    navigation.replace("Login");
   };
   const [stationFrom, setStationFrom] = useState(""); // State for station from
   const [stationTo, setStationTo] = useState("");
@@ -226,7 +226,7 @@ const Selectionne = () => {
       );
       // Navigate to ticket reservation page
       if (userSession) {
-        navigation.navigate("Ticket");
+        navigation.replace("Ticket");
       } else {
         // User is not logged in, show login modal
         setModalVisible(true);

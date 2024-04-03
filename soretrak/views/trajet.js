@@ -88,21 +88,21 @@ const Trajet = () => {
         JSON.stringify({ selectedLigne, stationFromLigne, stationToLigne })
       );
       // Navigate to the desired screen
-      navigation.navigate("List");
+      navigation.replace("List");
     } catch (error) {
       console.error("Error saving data to AsyncStorage:", error);
       // Handle error
     }
   };
   const NavigateToLogin = () => {
-    navigation.navigate("Login"); // Navigate to the login screen within the AuthScreens navigator
+    navigation.replace("Login"); // Navigate to the login screen within the AuthScreens navigator
   };
   //handleDashboard
   const handleDashboard = () => {
     navigation.navigate("AdminChoice"); // Navigate to the login screen
   };
   const NavigateToRegister = () => {
-    navigation.navigate("Register"); // Navigate to the login screen
+    navigation.replace("Register"); // Navigate to the login screen
   };
   const handleLigneChange = (value) => {
     setSelected(value);
@@ -118,7 +118,19 @@ const Trajet = () => {
   const handleLogout = async () => {
     try {
       console.log("Log out should be successful.")
-      await AsyncStorage.removeItem("user");
+      try {
+        // Check if there are any session variables
+        const keys = await AsyncStorage.getAllKeys();
+        if (keys.length > 0) {
+          // Clear all session variables
+          await AsyncStorage.clear();
+          console.log("Session variables cleared successfully.");
+        } else {
+          console.log("No session variables to clear.");
+        }
+      } catch (error) {
+        console.error("Error clearing session variables:", error);
+      }
       setUserSession(null);
     } catch (error) {
       console.error("Error logging out:", error);

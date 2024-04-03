@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
 import Colors from "../assets/colors"; // Assuming Colors.js defines color styles
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
 import { useNavigation } from '@react-navigation/native';
+import LigneService from "../viewModels/generalfile.js";
+import SnackBar from "react-native-snackbar-component";
 
 const ManageClients = () => {
   const fontsLoaded = useCustomFonts(); // Load custom fonts
@@ -11,13 +13,52 @@ const ManageClients = () => {
     return <Text>Loading fonts...</Text>;
   }
   const navigation = useNavigation();
+  const [isVisible, setIsVisible] = useState(false);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const userService = new LigneService();
+        const userData = await userService.getAllUsers();
+        setUsers(userData);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
 
+    fetchUsers();
+  }, []);
+  const [users, setUsers] = useState([]);
+  const handleDeleteUser = async (userId) => {
+    try {
+      const userService = new LigneService();
+      await userService.deleteUser(userId);
+      // Handle successful deletion, such as updating the UI or showing a message
+      console.log('User deleted successfully');
+      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
+
+      setIsVisible(true);
+      setTimeout(() => {
+        setIsVisible(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      // Handle error, such as showing an error message to the user
+    }
+  };
   const handleGestionClientPress = () => {
     navigation.navigate('AdminChoice');
 };
   return (
     <View style={styles.container}>
+      <SnackBar
+        visible={isVisible}
+        backgroundColor="#FFCE03"
+        messageColor="#2A3869"
+        textMessage="User supprimée avec succès."
+        autoHidingTime={2000}
+        top={30}
+      />
       {/* Title */}
       <Text style={styles.title}>
         <Text style={styles.itimText}>Gérer données </Text>
@@ -48,34 +89,19 @@ const ManageClients = () => {
                 <Text style={styles.headerText}>Actions</Text>
               </View>
             </View>
-         
-
-              <View style={styles.tableRow}>
-                <Text style={styles.cellText}>Sameh</Text>
-                <Text style={styles.cellText}>Ben amor</Text>
-                <Text style={styles.cellText}>25 019 058</Text>
-                <Text style={styles.cellText}>Sameh.benamor@esprit.tn</Text>
+            {users.map((user) => (
+              <View style={styles.tableRow} key={user._id}>
+                <Text style={styles.cellText}>{user.nom}</Text>
+                <Text style={styles.cellText}>{user.prenom}</Text>
+                <Text style={styles.cellText}>{user.num_telephone}</Text>
+                <Text style={styles.cellText}>{user.email}</Text>
                 <View style={styles.actionIcons}>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleDeleteUser(user._id)}>
                     <Image source={require("../assets/trash.png")} style={styles.trashIcon} />
                   </TouchableOpacity>
                 </View>
               </View>
-              <View style={styles.tableRow}>
-                <Text style={styles.cellText}>Noor</Text>
-                <Text style={styles.cellText}>Amri</Text>
-                <Text style={styles.cellText}>99 999 999</Text>
-                <Text style={styles.cellText}>noor@gmail.com</Text>
-                <View style={styles.actionIcons}>
-                  <TouchableOpacity>
-                    <Image source={require("../assets/trash.png")} style={styles.trashIcon} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              
-              
-            
-            {/* Add more rows as needed */}
+            ))}
           </View>
         </View>
       </ScrollView>

@@ -2,10 +2,10 @@ import axios from 'axios';
 import { BACKEND_URL_User } from '../configuration'; // Import the global constant
 
 const registerViewModel = {
-    createUser: async (name, prenom, email, password, num_telephone) => {
+    createUser: async (nom, prenom, email, password, num_telephone) => {
         try {
             const userData = {
-                name,
+                nom,
                 prenom,
                 email,
                 password,

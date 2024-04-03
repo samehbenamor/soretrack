@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Modal,
+  Platform
 } from "react-native";
 import Colors from "../assets/colors"; // Assuming Colors.js defines color styles
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
@@ -15,7 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
 import LigneService from "../viewModels/generalfile.js";
 import { useNavigation } from "@react-navigation/native";
-
+import * as Notifications from 'expo-notifications';
 const Ticket = () => {
   const fontsLoaded = useCustomFonts();
 
@@ -80,6 +81,13 @@ const Ticket = () => {
 
     loadFromAsyncStorage();
   }, []);
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
@@ -89,8 +97,62 @@ const Ticket = () => {
   const handleConfirm = async () => {
     if (password === userSession?.code_paiement.toString()) {
       try {
-        // Call the decrementUserCredit method with the user's ID
+        const IdUser = userSession.id;
+        const IdLigne = selectedLigne.ligne._id;
+        console.log("The user id for the reservation:", IdUser);
+        console.log("The ligne id for the reservation:", IdLigne);
+
+        /*const ligneData = {
+        num: parseInt(ligneNumero), // Convert to number
+        ligne: ligne,
+        heure_départ: heureDepart,
+        heure_retour: heureRetour,
+        durée: duree,
+        tarif: parseFloat(tarif), // Convert to float
+      }; */
+        // Assuming ligneId is stored in AsyncStorage
+        // Assuming userId is stored in AsyncStorage
+        const reservationData = {
+          userId: IdUser,
+          ligneId: IdLigne,
+          nombreDesAdultes: SelectedReservation.adultCount,
+          nombreDesEnfants: SelectedReservation.childCount,
+          nombreDeBebes: SelectedReservation.babyCount,
+          nombreDesHandicaps: SelectedReservation.disabledCount,
+          fraisTotal: SelectedReservation.price,
+        };
+        console.log("Reservation before saving:", reservationData);
         await ligneService.decrementUserCredit(userSession.id);
+        await ligneService.createReservation(reservationData);
+
+
+        //Notifications part//
+        if (Platform.OS === 'ios') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          if (status !== 'granted') {
+            alert('Sorry, we need notification permissions to show alerts!');
+            return;
+          }
+        }
+        await Notifications.setNotificationChannelAsync('emails', {
+          name: 'E-mail notifications',
+          sound: 'honk.wav', // Provide ONLY the base filename
+        });
+        const notificationId = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'Ne manquez pas votre bus.',
+            body: `Votre bus 🚌 vers ${SelectedReservation.stationTo} arrive dans 10 minutes!`,
+            sound: 'honk.wav'
+          },
+          trigger: { seconds: 5,
+            channelId: 'emails' },
+        })
+        console.log('Notification scheduled:', notificationId);
+        /////////////////////
+        //'Ne manquez pas votre bus.'
+        //Votre bus 🚌 vers ${SelectedReservation.stationTo} arrive dans 10 minutes!
+        // Call the decrementUserCredit method with the user's ID
+       
         navigation.replace("VotreTrajet");
       } catch (error) {
         console.error("Error decrementing user credit:", error);

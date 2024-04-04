@@ -249,7 +249,10 @@ const Selectionne = () => {
         <Text style={styles.sedText}>sélectionné</Text>
       </Text>
       <View style={styles.rectangle} />
-      <Text style={styles.subtitle}>Ligne N°:</Text>
+      <View style={styles.rowContainer}>
+      <Text style={styles.subtitle}>Ligne N°:   </Text>
+      <Text style={styles.subtitle2}>{selectedLigne?.ligne?.num}</Text>
+      </View>
       <View style={styles.lineContainer}>
         <TextInput
           style={styles.disabledInput}
@@ -586,6 +589,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontFamily: "Ink",
     textAlign: "center",
+  },
+  subtitle2: {
+    fontSize: 24,
+    fontFamily: "Inter",
+    marginTop: 10,
+    color: Colors.Blue
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: "center",// Align items vertically
   },
   lineContainer: {
     flexDirection: "row",

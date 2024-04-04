@@ -144,6 +144,8 @@ const ListTrajet = () => {
   const [stationTo, setStationTo] = useState("");
   const [ligneData, setLigneData] = useState([]);
   const [lignes, setLignes] = useState([]);
+  const firstLigneNum = lignes.length > 0 ? lignes[0].num : null;
+
   useEffect(() => {
     // Fetch data from AsyncStorage
     const fetchData = async () => {
@@ -199,7 +201,12 @@ const ListTrajet = () => {
         <Text style={styles.sedText}>Suggérés</Text>
       </Text>
       <View style={styles.rectangle} />
-      <Text style={styles.subtitle}>Ligne N°:</Text>
+      <View style={styles.rowContainer}>
+
+  <Text style={styles.subtitle}>Ligne N°:   </Text>
+  <Text style={styles.subtitle2}>{firstLigneNum}</Text>
+  </View>
+
       <View style={styles.lineContainer}>
         <TextInput
           style={styles.disabledInput}
@@ -300,6 +307,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     padding: 30,
   },
+ 
   rectangle: {
     marginTop: 120,
     marginLeft: 30,
@@ -335,7 +343,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 10,
     fontFamily: "Ink",
-    textAlign: "center",
+
+  },
+  subtitle2: {
+    fontSize: 24,
+    fontFamily: "Inter",
+    marginTop: 10,
+    color: Colors.Blue
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: "center",// Align items vertically
   },
   lineContainer: {
     flexDirection: "row",

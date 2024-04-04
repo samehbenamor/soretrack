@@ -88,7 +88,7 @@ const Trajet = () => {
         JSON.stringify({ selectedLigne, stationFromLigne, stationToLigne })
       );
       // Navigate to the desired screen
-      navigation.replace("List");
+      navigation.push("List");
     } catch (error) {
       console.error("Error saving data to AsyncStorage:", error);
       // Handle error

@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   buttonTextCrate: {
     fontSize: 18,
     fontFamily: "Itim",
-    color: Colors.Black,
+    color: Colors.White,
   },
   forgotPasswordButton: {
     marginVertical: 20,

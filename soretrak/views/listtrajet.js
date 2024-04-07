@@ -102,10 +102,21 @@ const ListTrajet = () => {
       );
     } else {
       try {
+        const viewModel = new LigneService();
+        const formattedDate = formatDate(date);
+        console.log("Formatted Date:", formattedDate);
+        console.log("Ligne ID:", ligne._id);
+        const bus = await viewModel.findBusByLigneIdAndDate(
+          ligne._id,
+          formattedDate
+        );
+        await AsyncStorage.setItem("busData", JSON.stringify(bus));
+        console.log("Bus:", bus);
         await AsyncStorage.setItem(
           "selectedLigne",
           JSON.stringify({ ligne, selectedDate: date })
         );
+
         navigation.navigate("Selectionne");
       } catch (error) {
         console.error("Error saving data to AsyncStorage:", error);
@@ -170,7 +181,12 @@ const ListTrajet = () => {
     };
     fetchData();
   }, []);
+  const formatDate = (date) => {
+    if (!date) return ""; // Return empty string if date is not provided
 
+    // Convert the date to a formatted string "DD-MM-YYYY"
+    return date.toLocaleDateString("fr-FR");
+  };
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShow(false);
@@ -188,9 +204,20 @@ const ListTrajet = () => {
       console.log("Selected date is before today");
       setLignes([]); // Clear the scrollview
     } else {
-      // Show all lignes for future dates
-      console.log("Selected date is in the present or future");
-      setLignes(ligneData);
+      // Calculate the difference in milliseconds between the selected date and today's date
+      const timeDifference = currentDate.getTime() - currentTime.getTime();
+    
+      // Calculate the difference in days
+      const differenceInDays = timeDifference / (1000 * 3600 * 24);
+    
+      // Check if the selected date is 3 days or more ahead of today's date
+      if (differenceInDays >= 7) {
+        console.log("Selected date is 3 days or more ahead of today");
+        setLignes([]); // Clear the scrollview
+      } else {
+        console.log("Selected date is in the present or future");
+        setLignes(ligneData);
+      }
     }
   };
 

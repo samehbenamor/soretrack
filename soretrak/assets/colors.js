@@ -1,6 +1,8 @@
 const Colors = {
-    Blue: '#2A3869',
-    Yellow: '#FFCE03',
+    //Blue: '#2A3869',
+    //Yellow: '#FFCE03',
+    Blue: '#e27c18',
+    Yellow: '#23612e',
     Black: '#000000',
     PastelBlue: '#E8F1F7',
     Grey : '#D9D9D9',

@@ -484,12 +484,12 @@ const styles = StyleSheet.create({
   signInButtonText: {
     fontFamily: "Itim",
     fontSize: 36,
-    color: Colors.Black,
+    color: Colors.White,
   },
   testext: {
     fontFamily: "Itim",
     fontSize: 20,
-    color: Colors.Black,
+    color: Colors.White,
   },
   loginButton: {
     backgroundColor: Colors.Yellow,
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
   loginButtonText: {
     fontFamily: "Itim",
     fontSize: 36,
-    color: Colors.Black,
+    color: Colors.White,
   },
   sign: {
     flexDirection: "row",

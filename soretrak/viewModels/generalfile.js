@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL_ligne } from '../configuration'; 
 import { BACKEND_URL_User } from '../configuration';// Import the global constant
 import { BACKEND_URL_reservation } from '../configuration';
+import { BACKEND_URL_bus } from '../configuration';
+//BACKEND_URL_bus
 import axios from 'axios';
 //BACKEND_URL_reservation
 class LigneService {
@@ -75,7 +77,7 @@ async deleteLigne(id) {
   }
   async decrementUserCredit(userId) {
     try {
-      const response = await axios.put(`${BACKEND_URL_User}${userId}/decrement-credit`);
+      const response = await axios.put(`${BACKEND_URL_User}/${userId}/decrement-credit`);
       return response.data;
     } catch (error) {
       console.error('Error decrementing user credit:', error);
@@ -114,6 +116,48 @@ async deleteLigne(id) {
       return response.data;
     } catch (error) {
       console.error('Error creating reservation:', error);
+      throw error;
+    }
+  }
+  //Bus part of the mvvm
+  //Below function isn't necessary to implement.
+  async generateBusesForFutureDates(endDate) {
+    try {
+      const response = await axios.post(`${BACKEND_URL_bus}/generate-buses/${endDate}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error generating buses for future dates:', error);
+      throw error;
+    }
+  }
+  //The whole process of generating buses for future dates is done in the backend.
+  //Below function will be the main actor in all of this.
+  async findBusByLigneIdAndDate(ligneId, date) {
+    try {
+      const response = await axios.post(`${BACKEND_URL_bus}/find-bus/${ligneId}`, { date });
+      return response.data;
+    } catch (error) {
+      console.error('Error finding bus by ligneId and date:', error);
+      throw error;
+    }
+  }
+
+  async subtractFromNombrePlaces(busId, numberOfSeats) {
+    try {
+      const response = await axios.put(`${BACKEND_URL_bus}/subtract-seats/${busId}/${numberOfSeats}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error subtracting seats from bus:', error);
+      throw error;
+    }
+  }
+
+  async getNombrePlacesOfBus(busId) {
+    try {
+      const response = await axios.get(`${BACKEND_URL_bus}/nombre-places/${busId}`);
+      return response.data.nombrePlaces;
+    } catch (error) {
+      console.error('Error getting nombrePlaces of bus:', error);
       throw error;
     }
   }

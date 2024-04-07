@@ -27,6 +27,7 @@ const Ticket = () => {
   const [password, setPassword] = useState("");
   const [date, setDate] = useState(new Date());
   const navigation = useNavigation();
+  const [bus, setBus] = useState({});
 
   const [selectedLigne, setSelectedLigne] = useState({});
   const [SelectedReservation, setSelectedReservation] = useState({});
@@ -54,16 +55,35 @@ const Ticket = () => {
           "reservationData"
         );
         const storedSelectedLigne = await AsyncStorage.getItem("selectedLigne");
+        const busData = await AsyncStorage.getItem("busData");
+        console.log("///////////////////////////////");
+        console.log("///////////////////////////////");
+        console.log("/////////Ticket page///////////");
+        console.log("///////////////////////////////");
         console.log("///////////////////////////////");
         console.log(
           "This is the stored reservation data:",
           storedReservationData
         );
-        console.log("/////////Ticket page///////////");
+        console.log("///////////////////////////////");
+        console.log("///////////////////////////////");
+        console.log("///////////////////////////////");
+        console.log("///////////////////////////////");
         console.log(
           "This is the stored Selected Ligne data:",
           storedSelectedLigne
         );
+        console.log("///////////////////////////////");
+        console.log("///////////////////////////////");
+        console.log("///////////////////////////////");
+        console.log("///////////////////////////////");
+        console.log(
+          "This is the stored bus data:",
+          busData
+        );
+        console.log("///////////////////////////////");
+        console.log("///////////////////////////////");
+        console.log("///////////////////////////////");
         console.log("///////////////////////////////");
         if (storedReservationData !== null) {
           setSelectedReservation(JSON.parse(storedReservationData));
@@ -73,7 +93,12 @@ const Ticket = () => {
           setSelectedLigne(JSON.parse(storedSelectedLigne));
         }
 
-        console.log("Data loaded from AsyncStorage");
+        if (busData !== null) {
+          setBus(JSON.parse(busData));
+        }
+
+
+        console.log("Data loaded from AsyncStorage successfully.");
       } catch (error) {
         console.error("Error loading data from AsyncStorage:", error);
       }
@@ -101,17 +126,13 @@ const Ticket = () => {
         const IdLigne = selectedLigne.ligne._id;
         console.log("The user id for the reservation:", IdUser);
         console.log("The ligne id for the reservation:", IdLigne);
+        const totalpassengers = (SelectedReservation.adultCount || 0) +
+        (SelectedReservation.childCount || 0) +
+        (SelectedReservation.babyCount || 0) +
+        (SelectedReservation.disabledCount || 0);
+        console.log("Making sure the total is correct: ", totalpassengers);
 
-        /*const ligneData = {
-        num: parseInt(ligneNumero), // Convert to number
-        ligne: ligne,
-        heure_départ: heureDepart,
-        heure_retour: heureRetour,
-        durée: duree,
-        tarif: parseFloat(tarif), // Convert to float
-      }; */
-        // Assuming ligneId is stored in AsyncStorage
-        // Assuming userId is stored in AsyncStorage
+
         const reservationData = {
           userId: IdUser,
           ligneId: IdLigne,
@@ -124,13 +145,13 @@ const Ticket = () => {
         console.log("Reservation before saving:", reservationData);
         await ligneService.decrementUserCredit(userSession.id);
         await ligneService.createReservation(reservationData);
-
+        await ligneService.subtractFromNombrePlaces(bus._id, totalpassengers);
 
         //Notifications part//
         if (Platform.OS === 'ios') {
           const { status } = await Notifications.requestPermissionsAsync();
           if (status !== 'granted') {
-            alert('Sorry, we need notification permissions to show alerts!');
+            alert("Désolé, nous avons besoin d'autorisations de notification pour vous envoyer des alertes de bus.");
             return;
           }
         }

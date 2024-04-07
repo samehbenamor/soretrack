@@ -14,6 +14,8 @@ import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is i
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LigneService from "../viewModels/generalfile.js";
+
 const Selectionne = () => {
   const fontsLoaded = useCustomFonts(); // Load custom fonts
   const navigation = useNavigation();
@@ -21,7 +23,7 @@ const Selectionne = () => {
   if (!fontsLoaded) {
     return <Text>Loading fonts...</Text>;
   }
-
+  const ligneService = new LigneService();
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
 
@@ -113,11 +115,19 @@ const Selectionne = () => {
   const [stationTo, setStationTo] = useState("");
   const [date, setDate] = useState(new Date());
   const [selectedLigne, setSelectedLigne] = useState({});
-
+  const [bus, setBus] = useState({});
+  const [nbrplaces, setNbrPlaces] = useState(0);
   useEffect(() => {
     // Fetch data from AsyncStorage
     const fetchData = async () => {
       try {
+        const busData = await AsyncStorage.getItem("busData");
+        const parsedBusData = JSON.parse(busData);
+        console.log(
+          "Bus Data from the session through selectionne.js:",
+          parsedBusData
+        );
+        setBus(parsedBusData);
         const selectedData = await AsyncStorage.getItem("selectedData");
         if (selectedData !== null) {
           const { stationFromLigne, stationToLigne } = JSON.parse(selectedData);
@@ -132,6 +142,22 @@ const Selectionne = () => {
           console.log("Selected Ligne:", ligne);
           setDate(new Date(selectedDate));
           console.log("Date:", date); // Set date from AsyncStorage
+          /////
+          /*const formattedDate = formatDate(date);
+          console.log("Formatted Date:", formattedDate);
+          console.log("Ligne ID:", ligne._id);
+          const bus = await ligneService.findBusByLigneIdAndDate(
+            ligne._id,
+            formattedDate
+          );
+          await AsyncStorage.setItem("busData", JSON.stringify(bus));
+          console.log("Bus:", bus);*/
+         
+          //console.log("Our bus has: ", bus);
+          //setNbrPlaces(parsedBusData?.nombrePlaces);
+          //console.log("Current number of places from variable:", nbrplaces);
+
+          /////
         }
       } catch (error) {
         console.error("Error fetching data from AsyncStorage:", error);
@@ -140,6 +166,12 @@ const Selectionne = () => {
     };
     fetchData();
   }, []);
+  useEffect(() => {
+    console.log("Our bus has: ", bus);
+    console.log("Current number of places from variable:", bus.nombrePlaces);
+    setNbrPlaces(bus.nombrePlace);
+    console.log("Current number of places saved in in nbrplaces:", nbrplaces);
+  }, [bus]);
   function calculateArrivalTime(timeString, durationString) {
     if (!timeString || !durationString) {
       return ""; // Return empty string if timeString is undefined
@@ -207,7 +239,13 @@ const Selectionne = () => {
     checkUserSession();
   }, []);
   const handleReservation = async () => {
-    // Save values to AsyncStorage
+    const totalPassengers = adultCount + childCount + babyCount + disabledCount;
+    console.log("Total Passengers from the selectionne page:", totalPassengers);
+    if (totalPassengers > bus.nombrePlaces) {
+      // Show alert informing user that there are not enough available seats
+      alert("Il n'y a pas assez de places disponibles dans le bus.");
+      return; // Exit function early
+    }
     try {
       const reservationData = {
         price,
@@ -250,8 +288,8 @@ const Selectionne = () => {
       </Text>
       <View style={styles.rectangle} />
       <View style={styles.rowContainer}>
-      <Text style={styles.subtitle}>Ligne N°:   </Text>
-      <Text style={styles.subtitle2}>{selectedLigne?.ligne?.num}</Text>
+        <Text style={styles.subtitle}>Ligne N°: </Text>
+        <Text style={styles.subtitle2}>{selectedLigne?.ligne?.num}</Text>
       </View>
       <View style={styles.lineContainer}>
         <TextInput
@@ -320,6 +358,26 @@ const Selectionne = () => {
             placeholder="Durée"
             placeholderTextColor={Colors.Gray}
             value={formatDuration(selectedLigne?.ligne?.durée) || ""}
+          />
+        </View>
+        <View style={styles.labelInputRow}>
+          <Text style={styles.labelText}>Nombre de places:</Text>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                color:
+                  bus?.nombrePlaces >= 27 && bus?.nombrePlaces <= 55
+                    ? "green"
+                    : bus?.nombrePlaces >= 10 && bus?.nombrePlaces < 27
+                    ? "yellow"
+                    : "red",
+              },
+            ]}
+            editable={false}
+            placeholder="Nombre de places."
+            placeholderTextColor={Colors.Gray}
+            value={bus?.nombrePlaces?.toString() || ""}
           />
         </View>
 
@@ -484,6 +542,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     alignSelf: "center",
+    marginRight: 50,
   },
   backArrow: {
     width: 60,
@@ -594,11 +653,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "Inter",
     marginTop: 10,
-    color: Colors.Blue
+    color: Colors.Blue,
   },
   rowContainer: {
-    flexDirection: 'row',
-    justifyContent: "center",// Align items vertically
+    flexDirection: "row",
+    justifyContent: "center", // Align items vertically
   },
   lineContainer: {
     flexDirection: "row",

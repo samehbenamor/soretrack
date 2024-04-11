@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     top: 340,
   },
   selectContainer: {
-    width: 300,
+    width: "100%",
     marginTop: 335,
     marginLeft: 80,
     position: "absolute",

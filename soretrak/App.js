@@ -1,9 +1,11 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
+
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import Colors from "./assets/colors"; // Import Colors.js
+
+
 import trajet from "./views/trajet"; // Import 'trajet.js
 import ListTrajet from "./views/listtrajet";
 import Selectionne from "./views/selectionne";
@@ -15,6 +17,8 @@ import ManageTrajets from "./views/managetrajets";
 import AjouterLigne from "./views/ajouterligne";
 import ModifierLigne from "./views/modifierligne";
 import ManageClients from "./views/manageclients"; // Import ManageClients
+
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
@@ -36,7 +40,6 @@ export default function App() {
         console.error("Error clearing session variables:", error);
       }
     };
-  
     // Call the function to clear session variables when the app starts
     clearSessionVariables();
   }, []);

@@ -127,12 +127,17 @@ const ListTrajet = () => {
   //function to convert string to time and then calculate the heure arrive using the duration
   function calculateArrivalTime(timeString, durationString) {
     // Parse time string into hours and minutes
+    //16:30
+    // Hours = 16, Minutes = 30
     const [hours, minutes] = timeString.split(":").map(Number);
 
     // Parse duration string into hours and minutes
+    //2h35m
+    // Hours = 2, Minutes = 35
     const [durationHours, durationMinutes] = durationString
       .match(/\d+/g)
       .map(Number);
+
 
     // Calculate total minutes for time and duration
     const totalMinutes =
@@ -147,6 +152,7 @@ const ListTrajet = () => {
     const formattedMinutes = String(newMinutes).padStart(2, "0");
 
     // Return formatted arrival time
+    // HD + D = HA
     return `${formattedHours}:${formattedMinutes}`;
   }
 
@@ -164,7 +170,7 @@ const ListTrajet = () => {
         const selectedData = await AsyncStorage.getItem("selectedData");
         if (selectedData !== null) {
           const { stationFromLigne, stationToLigne, selectedLigne } =
-            JSON.parse(selectedData);
+          JSON.parse(selectedData);
           setStationFrom(stationFromLigne);
           setStationTo(stationToLigne);
           console.log("Selected Route:", selectedLigne);

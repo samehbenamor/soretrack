@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from "react-native";
+
+
 import Colors from "../assets/colors";
+import useCustomFonts from "../assets/fonts"; 
+
 import emailIcon from "../assets/email.png";
 import passwordIcon from "../assets/password.png";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
 import { useNavigation } from '@react-navigation/native';
-import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
+// Assuming useCustomFonts.js is in the same directory
 import loginViewModel from "../viewModels/loginViewModel";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -18,6 +23,8 @@ const Login = () => {
   var [errorText, setErrorText] = useState("");
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
+    //true = false
+    //false = true
   };
   const navigation = useNavigation();
   const NavigateAfterSuccess = () => {

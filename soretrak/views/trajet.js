@@ -117,7 +117,7 @@ const Trajet = () => {
 
   const handleLogout = async () => {
     try {
-      console.log("Log out should be successful.")
+      console.log("Log out should be successful.");
       try {
         // Check if there are any session variables
         const keys = await AsyncStorage.getAllKeys();
@@ -165,67 +165,77 @@ const Trajet = () => {
         <Text style={styles.radioButtonLabel}>Interurban</Text>
       </View>
       <Text style={styles.secondSubTitle}>Choisir la ligne</Text>
-      <Image
-        source={require("../assets/direction.png")}
-        style={styles.directionImage}
-      />
+      <View style={styles.imagenexttoselect}>
+        <Image
+          source={require("../assets/direction.png")}
+          style={styles.directionImage}
+        />
+        <View style={styles.selectContainer}>
+          <SelectList
+            setSelected={(value) => {
+              setSelectedLigne(value);
+              handleLigneChange(value); // Optionally call your existing handler if needed
+            }}
+            placeholder="Selectionner votre ligne"
+            searchPlaceholder="Rechercher une ligne"
+            data={lignes.map((ligne) => ({
+              key: ligne.num,
+              value: ligne.ligne,
+            }))} // Map lignes to SelectList data format
+            save="value"
+            boxStyles={{ backgroundColor: "white" }}
+            dropdownItemStyles={{ backgroundColor: "white" }}
+          />
+        </View>
+      </View>
       <Text style={styles.thirdSubTitle}>Choisir les stations</Text>
-      <View style={styles.selectContainer}>
-        <SelectList
-          setSelected={(value) => {
-            setSelectedLigne(value);
-            handleLigneChange(value); // Optionally call your existing handler if needed
-          }}
-          placeholder="Selectionner votre ligne"
-          searchPlaceholder="Rechercher une ligne"
-          data={lignes.map((ligne) => ({ key: ligne.num, value: ligne.ligne }))} // Map lignes to SelectList data format
-          save="value"
-          boxStyles={{ backgroundColor: "white" }}
-          dropdownItemStyles={{ backgroundColor: "white" }}
+      <View style={styles.imageAndLists}>
+        <Image
+          source={require("../assets/fromto.png")}
+          style={styles.fromToImage}
         />
-      </View>
-      <Image
-        source={require("../assets/fromto.png")}
-        style={styles.fromToImage}
-      />
-      <View style={styles.selectContainerThree}>
-        <SelectList
-          setSelected={(val) => {
-            setSelected(val);
-            setStationToLigne(val);
-          }}
-          data={[
-            {
-              key: "1",
-              value: selected === stationFrom ? stationTo : stationFrom,
-            }, // Show the remaining station based on the selected value
-          ]}
-          save="value"
-          placeholder="Station Retour"
-          searchPlaceholder="Rechercher une station"
-          boxStyles={{ backgroundColor: "white" }}
-          dropdownItemStyles={{ backgroundColor: "white" }}
-          disabled={disableStations || !stationFrom} // Disable until a ligne is selected or stationFrom is set
-        />
-      </View>
-      <View style={styles.selectContainerTwo}>
-        <SelectList
-          setSelected={(val) => {
-            setSelected(val);
-            setStationFromLigne(val);
-          }}
-          data={[
-            { key: "1", value: stationFrom }, // Show stationFrom
-            { key: "2", value: stationTo }, // Show stationTo
-          ]}
-          save="value"
-          searchPlaceholder="Rechercher une station"
-          placeholder="Station depart"
-          boxStyles={{ backgroundColor: "white" }}
-          dropdownItemStyles={{ backgroundColor: "white" }}
-          dropdownStyles={{ backgroundColor: "white" }}
-          disabled={disableStations || !stationFrom} // Disable until a ligne is selected or stationFrom is set
-        />
+        <View style={styles.columnial}>
+        <View style={styles.selectContainerTwo}>
+          <SelectList
+            setSelected={(val) => {
+              setSelected(val);
+              setStationFromLigne(val);
+            }}
+            data={[
+              { key: "1", value: stationFrom }, // Show stationFrom
+              { key: "2", value: stationTo }, // Show stationTo
+            ]}
+            save="value"
+            searchPlaceholder="Rechercher une station"
+            placeholder="Station depart"
+            boxStyles={{ backgroundColor: "white" }}
+            dropdownItemStyles={{ backgroundColor: "white" }}
+            dropdownStyles={{ backgroundColor: "white" }}
+            disabled={disableStations || !stationFrom} // Disable until a ligne is selected or stationFrom is set
+          />
+        </View>
+        <View style={styles.selectContainerThree}>
+          <SelectList
+            setSelected={(val) => {
+              setSelected(val);
+              setStationToLigne(val);
+            }}
+            data={[
+              {
+                key: "1",
+                value: selected === stationFrom ? stationTo : stationFrom,
+              }, // Show the remaining station based on the selected value
+            ]}
+            save="value"
+            placeholder="Station Retour"
+            searchPlaceholder="Rechercher une station"
+            boxStyles={{ backgroundColor: "white" }}
+            dropdownItemStyles={{ backgroundColor: "white" }}
+            disabled={disableStations || !stationFrom} // Disable until a ligne is selected or stationFrom is set
+          />
+        </View>
+        
+        </View>
       </View>
       <View style={styles.errorContrainer}>
         <Text style={styles.error}>{errorText}</Text>
@@ -242,26 +252,29 @@ const Trajet = () => {
               <Text style={styles.loggedInUserName}> {userSession.name}</Text>
             </Text>
             {userSession?.role == "user" && (
-            <TouchableOpacity
-              style={styles.logoutButtonBonus}
-              onPress={handleLogout}
-            >
-              <Text style={styles.logoutButtonText}>Déconnexion</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.logoutButtonBonus}
+                onPress={handleLogout}
+              >
+                <Text style={styles.logoutButtonText}>Déconnexion</Text>
+              </TouchableOpacity>
             )}
             {userSession?.role !== "user" && (
-               <View style={styles.sign}>
-              <TouchableOpacity
-              style={styles.signInButton}
-              onPress={handleLogout}
-            >
-              <Text style={styles.testext}>Déconnexion</Text>
-            </TouchableOpacity>
-        <TouchableOpacity style={styles.loginButton} onPress={handleDashboard}>
-          <Text style={styles.testext}>Dashboard</Text>
-        </TouchableOpacity>
-        </View>
-      )}
+              <View style={styles.sign}>
+                <TouchableOpacity
+                  style={styles.signInButton}
+                  onPress={handleLogout}
+                >
+                  <Text style={styles.testext}>Déconnexion</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.loginButton}
+                  onPress={handleDashboard}
+                >
+                  <Text style={styles.testext}>Dashboard</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         ) : (
           // If no user session, display signup and login buttons
@@ -285,22 +298,25 @@ const Trajet = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.White,
     padding: 30,
-    position: "relative",
+  },
+  imageAndLists: {
+    flexDirection: "row",
   },
   loggedInSection: {
     alignItems: "center",
+    marginBottom: 20,
   },
   loggedInText: {
     color: Colors.Blue,
     fontSize: 24,
     textAlign: "center",
     marginVertical: 20,
+    fontFamily: "Sed",
   },
   loggedInUserName: {
     color: Colors.Yellow,
@@ -321,24 +337,23 @@ const styles = StyleSheet.create({
     fontSize: 36,
   },
   error: {
-    //fontFamily: 'Bold',
     fontSize: 12,
     textAlign: "center",
     color: "#FF5C5C",
   },
+  imagenexttoselect: {
+    position: "relative",
+    flexDirection: "row", // Set flexDirection to row to place items horizontally
+    alignItems: "center",
+  },
   errorContrainer: {
-    width: "100%",
-    position: "absolute",
-    marginTop: 600,
-    marginLeft: 30,
+    margin: 20,
   },
   title: {
     fontSize: 48,
-    marginBottom: 20,
-    fontFamily: "Sed",
-    position: "absolute",
-    top: 74,
-    left: 85,
+    marginTop: 20,
+    textAlign: "center", // Center the text horizontally
+    justifyContent: "center", // Center the text vertically // Take up available vertical space
   },
   itimText: {
     fontFamily: "Itim",
@@ -353,24 +368,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 30,
     fontFamily: "Ink",
-    position: "absolute",
-    left: 39,
-    top: 133,
   },
   secondSubTitle: {
     fontSize: 20,
-    marginTop: 30, // Adjust spacing from the radio button container
     fontFamily: "Ink",
-    left: 10,
-    top: 220,
+    marginBottom: 10,
   },
   radioButtonContainer: {
     flexDirection: "row",
     alignItems: "center",
-    position: "absolute",
-    left: 35,
-    top: 211,
-    marginTop: 13,
+    marginBottom: 13,
   },
   radioButton: {
     width: 24,
@@ -405,54 +412,47 @@ const styles = StyleSheet.create({
   directionImage: {
     width: 35,
     height: 35,
-    position: "absolute",
-    left: 40,
-    top: 340,
+    marginRight: 10,
   },
   selectContainer: {
-    width: "100%",
-    marginTop: 335,
-    marginLeft: 80,
-    position: "absolute",
+    flex: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    zIndex: 6,
   },
   thirdSubTitle: {
     fontSize: 20,
-    marginTop: 30, // Adjust spacing from the select list container
+    marginTop: 10,
     fontFamily: "Ink",
-    left: 10,
-    top: 250,
   },
   fromToImage: {
     width: 43,
     height: 139,
-    position: "absolute",
-    left: 40,
-    top: 450,
+    marginRight: 10,
+  },
+  columnial: {
+    marginTop: 10,
+    flexDirection: "column",
+    flex: 1,
+    justifyContent: "space-between",
   },
   selectContainerTwo: {
-    width: 300,
-    marginTop: 450,
-    marginLeft: 80,
-    position: "absolute",
+    /*width: "100%",
     borderRadius: 5,
     paddingHorizontal: 10,
-    zIndex: 5,
+    marginBottom: 30,*/
+    flex: 1, 
+    marginBottom: 30,
+    
   },
   selectContainerThree: {
-    width: 300,
-    marginTop: 540,
-    marginLeft: 80,
-    position: "absolute",
+    /*width: "100%",
     borderRadius: 5,
     paddingHorizontal: 10,
-    zIndex: 4,
+    marginBottom: 30,*/
+    flex: 1, // Take up remaining space
   },
   buttonContainer: {
     width: "100%",
-    marginTop: 430,
   },
   searchButton: {
     backgroundColor: Colors.Blue,

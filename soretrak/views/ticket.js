@@ -343,7 +343,7 @@ const Ticket = () => {
             </View>
             {/* Right Column */}
             <View style={styles.column}>
-              <Text style={styles.label}>Nombre de handicapées:</Text>
+              <Text style={styles.label12}>Nombre de handicapées:</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Input 2"
@@ -442,8 +442,8 @@ const styles = StyleSheet.create({
     color: Colors.Red,
   },
   title: {
-    fontSize: 32,
-    marginLeft: 35,
+    fontSize: 24,
+    marginLeft: 70,
     marginTop: 30,
     justifyContent: "center",
     marginBottom: 10,
@@ -477,6 +477,11 @@ const styles = StyleSheet.create({
   column: {
     flex: 1,
     marginRight: 20,
+  },
+  label12: {
+    fontSize: 8,
+    color: Colors.DarkGray,
+    fontFamily: "Inter",
   },
   label: {
     fontSize: 12,

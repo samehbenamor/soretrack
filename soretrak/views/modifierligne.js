@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     marginBottom: 8, // Adjust spacing between title and input if needed
   },
   title: {
-    fontSize: 48,
+    fontSize: 36,
     fontFamily: "Sed",
     color: Colors.Blue,
     textAlign: "center",

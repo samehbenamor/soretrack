@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   title: {
-    fontSize: 48,
+    fontSize: 36,
     fontFamily: "Sed",
     color: Colors.Blue,
     textAlign: "center",

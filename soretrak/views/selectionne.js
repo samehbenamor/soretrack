@@ -608,7 +608,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderColor: Colors.Black,
     width: "100%",
-    height: "23%", // Adjust thickness as needed
+    height: "20%", // Adjust thickness as needed
     marginVertical: 10,
 
     position: "absolute", // Adjust spacing as needed
@@ -694,7 +694,6 @@ const styles = StyleSheet.create({
   datepicker: {
     marginTop: 10,
     marginLeft: 90,
-    marginBottom: 10,
     flexDirection: "row",
     alignItems: "center",
   },

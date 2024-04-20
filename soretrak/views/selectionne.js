@@ -474,14 +474,7 @@ const Selectionne = () => {
         </View>
       </View>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>
-          <Text style={styles.red2}>*</Text>Enfant (entre 3 et 7 ans): Demi
-          tarif,
-          <Text style={styles.red2}>*</Text>Bébé (inférieur à 3 ans): Gratuit,
-          <Text style={styles.red2}>*</Text>Handicapé: 1/4 tarif
-        </Text>
-      </View>
+      
       <View style={styles.rowContainer}>
         <TouchableOpacity onPress={goBack} style={styles.backButton}>
           <Image

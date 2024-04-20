@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { SelectList } from "react-native-dropdown-select-list";
@@ -138,6 +138,7 @@ const Trajet = () => {
   };
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
     <View style={styles.container}>
       <Text style={styles.title}>
         <Text style={styles.itimText}>Votre</Text>
@@ -296,6 +297,7 @@ const Trajet = () => {
       </View>
       {/* Select list */}
     </View>
+    </ScrollView>
   );
 };
 const styles = StyleSheet.create({
@@ -303,6 +305,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.White,
     padding: 30,
+  },
+  scrollViewContainer: {
+    flexGrow: 1,
+    backgroundColor: Colors.White,
+
   },
   imageAndLists: {
     flexDirection: "row",

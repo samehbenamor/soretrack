@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   Modal,
+  ScrollView,
 } from "react-native";
 import Colors from "../assets/colors"; // Assuming Colors.js defines color styles
 import useCustomFonts from "../assets/fonts"; // Assuming useCustomFonts.js is in the same directory
@@ -281,6 +282,8 @@ const Selectionne = () => {
   };
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+
     <View style={styles.container}>
       <Text style={styles.title}>
         <Text style={styles.itimText}>Voyage </Text>
@@ -524,6 +527,7 @@ const Selectionne = () => {
         </View>
       </Modal>
     </View>
+    </ScrollView>
   );
 };
 
@@ -532,6 +536,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.White,
     padding: 30,
+  },
+  scrollViewContainer: {
+    flexGrow: 1,
+    backgroundColor: Colors.White,
+
   },
   rowContainer: {
     flexDirection: "row",
@@ -628,7 +637,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   title: {
-    fontSize: 36,
+    fontSize: 32,
     marginLeft: 35,
     marginTop: 30,
     justifyContent: "center",

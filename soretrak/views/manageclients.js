@@ -116,11 +116,10 @@ const styles = StyleSheet.create({
     padding: 30,
   },
   title: {
-    fontSize: 36,
-    marginLeft: 75,
+    fontSize: 32,
     marginTop: 30,
-    justifyContent: "center",
     marginBottom: 10,
+    textAlign: "center",
     fontFamily: "Sed",
   },
   itimText: {

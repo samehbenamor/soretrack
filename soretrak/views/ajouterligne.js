@@ -64,7 +64,7 @@ const AjouterLigne = () => {
     style={{ flex: 1, backgroundColor: Colors.White }}
     behavior="padding"
   >
-            <ScrollView>
+            <ScrollView contentContainerStyle={styles.scrollViewContainer}>
     <View style={styles.container}>
       {/* Title */}
       <Text style={styles.title}>
@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     paddingHorizontal: 20,
   },
+  
   title: {
     fontSize: 36,
     fontFamily: "Sed",
@@ -170,9 +171,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   backButton: {
-    position: "absolute",
-    bottom: -80,
-    alignSelf: "center",
+    position: 'absolute',
+    top: 55,
+    left: 20,
+    zIndex: 1, // Ensure the button is above other elements
   },
   input: {
     height: 60,

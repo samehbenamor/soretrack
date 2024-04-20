@@ -172,9 +172,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backButton: {
-    position: "absolute",
-    bottom: -80,
-    alignSelf: "center",
+    position: 'absolute',
+    top: 55,
+    left: 20,
+    zIndex: 1, // Ensure the button is above other elements
   },
   input: {
     height: 60,

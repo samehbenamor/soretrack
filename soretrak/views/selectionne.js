@@ -408,7 +408,7 @@ const Selectionne = () => {
         </View>
         <View style={styles.line}>
           <Text style={styles.lineLabel}>
-            Enfant<Text style={styles.red}>*</Text>
+            Enfant
           </Text>
           <TouchableOpacity
             style={styles.button}
@@ -428,7 +428,7 @@ const Selectionne = () => {
         </View>
         <View style={styles.line}>
           <Text style={styles.lineLabel}>
-            Bébé<Text style={styles.red}>*</Text>
+            Bébé
           </Text>
           <TouchableOpacity
             style={styles.button}
@@ -448,7 +448,7 @@ const Selectionne = () => {
         </View>
         <View style={styles.line}>
           <Text style={styles.lineLabel}>
-            Handicapé<Text style={styles.red}>*</Text>
+            Handicapé
           </Text>
           <TouchableOpacity
             style={styles.button}

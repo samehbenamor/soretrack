@@ -135,7 +135,6 @@ const Login = () => {
         <Text style={styles.buttonTextCrate}>Créer nouveau compte</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.forgotPasswordButton}>
-        <Text style={styles.forgotPasswordText}>Mot de passe oublié?</Text>
       </TouchableOpacity>
     </View>
   );

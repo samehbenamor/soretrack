@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     color: Colors.Black,
   },
   datepicker: {
-    marginTop: 10,
+
     marginLeft: 90,
     flexDirection: "row",
     alignItems: "center",

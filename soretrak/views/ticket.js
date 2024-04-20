@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    marginLeft: 70,
+    marginLeft: 50,
     marginTop: 30,
     justifyContent: "center",
     marginBottom: 10,
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   label12: {
-    fontSize: 8,
+    fontSize: 11,
     color: Colors.DarkGray,
     fontFamily: "Inter",
   },

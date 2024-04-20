@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 65,
+    top: 82,
     left: 30,
     zIndex: 1, // Ensure the button is above other elements
   },
